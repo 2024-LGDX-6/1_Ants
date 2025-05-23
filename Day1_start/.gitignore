@@ -1,0 +1,15 @@
+# Created by pytest automatically.
+# Byte‑code
+__pycache__/
+*.py[cod]
+*.pyc
+# 가상환경
+.venv/
+
+# IDE
+.idea/
+.vscode/
+
+# 기타
+.env
+
