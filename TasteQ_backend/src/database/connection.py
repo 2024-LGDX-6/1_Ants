@@ -13,7 +13,7 @@ load_dotenv()                           # .env 로드
 user = os.getenv("MYSQL_USER")
 pw_raw = os.getenv("MYSQL_PW")
 host = os.getenv("MYSQL_HOST", "127.0.0.1")
-port = os.getenv("MYSQL_PORT", "3306")
+port = os.getenv("MYSQL_PORT", "3307")
 db   = os.getenv("MYSQL_DB")
 
 if None in (user, pw_raw, db):
