@@ -2,7 +2,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <application
-        android:label="taste_q"
+        android:label="ThinQ"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
