@@ -15,34 +15,7 @@ class RecipeDataScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Consumer<RecipeProvider>(
         builder: (context, provider, _) {
-<<<<<<< Updated upstream
-          return Consumer<RecipeProvider>(
-            builder: (context, provider, _) {
-              return RecipeDataView();
-            },
-=======
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              RecipeDataView(),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  // 버튼 클릭 시 동작 정의
-                  print("요리 시작 버튼이 눌렸습니다.");
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 32.h, vertical: 16.w),
-                  backgroundColor: Colors.orange,
-                ),
-                child: const Text(
-                  '요리 시작',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-            ],
->>>>>>> Stashed changes
-          );
+          return RecipeDataView(); 
         },
       ),
     );
