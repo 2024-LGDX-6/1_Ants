@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:taste_q/controllers/recipe_controller.dart';
+import 'package:taste_q/views/recipe_link_button.dart';
 import 'package:taste_q/views/recipe_mode_selector.dart';
+import 'package:taste_q/views/recipe_start_button.dart';
 import 'package:taste_q/views/safe_images.dart';
 import '../providers/recipe_provider.dart';
 import 'condiment_type_usages.dart';
@@ -22,25 +24,32 @@ class RecipeDataView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 30.h),
+          SizedBox(height: 40.h),
           Center(
             child: safeImage(recipe.recipeImageUrl, 300.w, 200.h),
           ),
           SizedBox(height: 15.h),
-          Center(
-            child: Text(
-              recipe.recipeTitle,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 32.sp,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                recipe.recipeTitle,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 32.sp,
+                ),
               ),
-            ),
+              Icon(Icons.bookmark_border, size: 32.sp,)
+            ],
           ),
           SizedBox(height: 8.h),
           RecipeModeSelector(), // controller 없이 Provider 기반
-          SizedBox(height: 32.h),
+          SizedBox(height: 28.h),
           CondimentTypeUsages(controller: controller),
-
+          SizedBox(height: 20.h),
+          RecipeStartButton(),
+          SizedBox(height: 20.h),
+          RecipeLinkButton(controller: controller),
         ],
       ),
     );

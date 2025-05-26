@@ -1,39 +1,27 @@
-from fastapi import APIRouter
-from database.connection import get_connection
+from fastapi import APIRouter, HTTPException
+from schema.request import RecipeCreateRequest
+from schema.response import RecipeResponse, RecipeSeasoningDetailResponse
+import service.recipe_service as recipe_service
 
 router = APIRouter()
 
-@router.get("/recipes/test")
-def test_recipes():
-    return {"message": "Recipe API is working"}
+@router.post("/recipes", response_model=RecipeResponse)
+def create_recipe(recipe: RecipeCreateRequest):
+    recipe_id = recipe_service.create_recipe(recipe.name, recipe.description)
+    return RecipeResponse(recipe_id=recipe_id, name=recipe.name, description=recipe.description)
 
-@router.get("/recipes")
-def get_recipes():
-    conn = get_connection()
-    with conn.cursor() as cursor:
-        cursor.execute("SELECT * FROM recipe")
-        result = cursor.fetchall()
-    conn.close()
-    return result
 
-@router.get("/recipes/{recipe_id}/seasonings")
-def get_recipe_seasonings(recipe_id: int):
-    conn = None
-    try:
-        conn = get_connection()
-        with conn.cursor() as cursor:
-            cursor.execute("""
-                SELECT s.seasoning_name, d.amount
-                FROM recipe_seasoning_detail d
-                JOIN seasoning s ON d.seasoning_id = s.seasoning_id
-                WHERE d.recipe_id = %s
-            """, (recipe_id,))
-            result = cursor.fetchall()
-        return result
-    except Exception as e:
-        # 예외 메시지를 응답으로 보여줌
-        return {"error": str(e)}
-    finally:
-        if conn is not None:
-            conn.close()
+@router.get("/recipes/{recipe_id}", response_model=RecipeResponse)
+def get_recipe_by_id(recipe_id: int):
+    recipe_data = recipe_service.get_recipe_by_id(recipe_id)
+    if not recipe_data:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+    return RecipeResponse(**recipe_data)
 
+
+@router.get("/recipes/{recipe_id}/seasoning-details", response_model=list[RecipeSeasoningDetailResponse])
+def get_recipe_seasoning_details(recipe_id: int):
+    data = recipe_service.get_recipe_seasoning_details(recipe_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="No seasoning details found for this recipe")
+    return [RecipeSeasoningDetailResponse(**row) for row in data]

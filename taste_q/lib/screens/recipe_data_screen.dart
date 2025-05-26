@@ -15,6 +15,12 @@ class RecipeDataScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Consumer<RecipeProvider>(
         builder: (context, provider, _) {
+<<<<<<< Updated upstream
+          return Consumer<RecipeProvider>(
+            builder: (context, provider, _) {
+              return RecipeDataView();
+            },
+=======
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -35,6 +41,7 @@ class RecipeDataScreen extends StatelessWidget {
                 ),
               ),
             ],
+>>>>>>> Stashed changes
           );
         },
       ),
