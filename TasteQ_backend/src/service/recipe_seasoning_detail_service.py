@@ -1,3 +1,5 @@
+from database.connection import get_connection
+
 def get_all_recipe_seasoning_details():
     conn = get_connection()
     try:
