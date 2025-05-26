@@ -1,16 +1,23 @@
 from database.connection import get_connection
 
-def create_user_seasoning(user_id: int, seasoning_id: int, amount: int, unit: str, injection_order: int) -> int:
+def get_all_user_seasonings():
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
             sql = """
-                INSERT INTO user_seasoning (user_id, seasoning_id, amount, unit, injection_order)
-                VALUES (%s, %s, %s, %s, %s)
+                SELECT 
+                    us.batch_id,
+                    us.user_id,
+                    u.name AS user_name,
+                    us.seasoning_id,
+                    s.seasoning_name
+                FROM user_seasoning us
+                JOIN user u ON us.user_id = u.user_id
+                JOIN seasoning s ON us.seasoning_id = s.seasoning_id
+                ORDER BY us.user_id
             """
-            cursor.execute(sql, (user_id, seasoning_id, amount, unit, injection_order))
-            conn.commit()
-            return cursor.lastrowid
+            cursor.execute(sql)
+            return cursor.fetchall()
     finally:
         conn.close()
 
@@ -20,9 +27,16 @@ def get_user_seasonings_by_user_id(user_id: int):
     try:
         with conn.cursor() as cursor:
             sql = """
-                SELECT * FROM user_seasoning
-                WHERE user_id = %s
-                ORDER BY injection_order
+                SELECT 
+                    us.batch_id,
+                    us.user_id,
+                    u.name AS user_name,
+                    us.seasoning_id,
+                    s.seasoning_name
+                FROM user_seasoning us
+                JOIN user u ON us.user_id = u.user_id
+                JOIN seasoning s ON us.seasoning_id = s.seasoning_id
+                WHERE us.user_id = %s
             """
             cursor.execute(sql, (user_id,))
             return cursor.fetchall()

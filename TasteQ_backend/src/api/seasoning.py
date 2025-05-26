@@ -6,12 +6,15 @@ router = APIRouter()
 
 @router.get("/seasonings", response_model=list[SeasoningResponse])
 def get_all_seasonings():
-    data = seasoning_service.get_all_seasonings()
-    return [SeasoningResponse(**row) for row in data]
+    seasonings = seasoning_service.get_all_seasonings()
+    if not seasonings:
+        raise HTTPException(status_code=404, detail="No seasonings found")
+    return seasonings
+
 
 @router.get("/seasonings/{seasoning_id}", response_model=SeasoningResponse)
-def get_seasoning_by_id(seasoning_id: int):
+def get_seasoning(seasoning_id: int):
     seasoning = seasoning_service.get_seasoning_by_id(seasoning_id)
-    if seasoning is None:
+    if not seasoning:
         raise HTTPException(status_code=404, detail="Seasoning not found")
-    return SeasoningResponse(**seasoning)
+    return seasoning

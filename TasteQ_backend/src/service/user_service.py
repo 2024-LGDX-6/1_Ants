@@ -4,7 +4,8 @@ def get_all_users():
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM user")
+            sql = "SELECT user_id, name, age FROM user"
+            cursor.execute(sql)
             return cursor.fetchall()
     finally:
         conn.close()
@@ -13,7 +14,8 @@ def get_user_by_id(user_id: int):
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM user WHERE user_id = %s", (user_id,))
+            sql = "SELECT user_id, name, age FROM user WHERE user_id = %s"
+            cursor.execute(sql, (user_id,))
             return cursor.fetchone()
     finally:
         conn.close()
