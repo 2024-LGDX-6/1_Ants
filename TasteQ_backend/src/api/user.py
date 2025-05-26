@@ -1,17 +1,16 @@
-from fastapi import APIRouter
-from database.connection import get_connection
+from fastapi import APIRouter, HTTPException
+from schema.response import UserResponse
+import service.user_service as user_service
 
 router = APIRouter()
 
-@router.get("/users/test")
-def test_users():
-    return {"message": "User API is working"}
-
-@router.get("/users")
+@router.get("/users", response_model=list[UserResponse])
 def get_users():
-    conn = get_connection()
-    with conn.cursor() as cursor:
-        cursor.execute("SELECT * FROM user")
-        result = cursor.fetchall()
-    conn.close()
-    return result
+    return user_service.get_all_users()
+
+@router.get("/users/{user_id}", response_model=UserResponse)
+def get_user_by_id(user_id: int):
+    user = user_service.get_user_by_id(user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user

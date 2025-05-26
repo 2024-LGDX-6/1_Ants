@@ -8,10 +8,10 @@ load_dotenv()
 
 def get_connection():
     return pymysql.connect(
-        host=os.getenv("DB_HOST"),
-        port=int(os.getenv("DB_PORT", 3306)),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        database=os.getenv("DB_NAME"),
+        host=os.getenv("MYSQL_HOST"),
+        port=int(os.getenv("MYSQL_PORT", 3306)),
+        user=os.getenv("MYSQL_USER"),
+        password=os.getenv("MYSQL_PW"),
+        database=os.getenv("MYSQL_DB"),
         cursorclass=pymysql.cursors.DictCursor
     )
