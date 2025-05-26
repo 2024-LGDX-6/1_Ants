@@ -1,20 +1,33 @@
 from pydantic import BaseModel
+from datetime import datetime
+from typing import Optional
 
-class UserCreateRequest(BaseModel):
-    name: str
-    age: int
 
-class RecipeCreateRequest(BaseModel):
-    name: str
-    description: str
+class CookingLogCreateRequest(BaseModel):
+    recipe_id: int
+    cooking_mode: str
+    start_time: datetime
+    servings: int
+    recipe_type: int
 
-class SeasoningCreateRequest(BaseModel):
-    seasoning_id: int
-    seasoning_name: str
-
-class UserSeasoningCreateRequest(BaseModel):
+class CustomRecipeCreateRequest(BaseModel):
     user_id: int
+    custom_recipe_name: str
+    cook_time_min: Optional[int] = None
+
+class DeviceConnectionLogCreateRequest(BaseModel):
+    device_id: int
+    connection_status: str  # 'on' or 'off'
+    timestamp: datetime
+
+class CustomRecipeCreateRequest(BaseModel):
+    user_id: int
+    custom_recipe_name: str
+    cook_time_min: int
+
+class CustomRecipeSeasoningDetailCreateRequest(BaseModel):
+    custom_recipe_id: int
     seasoning_id: int
     amount: int
-    unit : str
+    unit: str
     injection_order: int

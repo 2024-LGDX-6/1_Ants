@@ -49,3 +49,4 @@ def get_recipe_seasoning_details_by_recipe_id(recipe_id: int):
             return cursor.fetchall()
     finally:
         conn.close()
+
