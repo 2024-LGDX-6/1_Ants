@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taste_q/screens/tasteq_main_screen.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'dart:io' show Platform;
+import 'dart:async';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,9 +11,12 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _currentIndex = 0;
   final PageController _pageController = PageController();
+
+  // 블루투스 설정 화면 진입 여부 체크 변수
+  bool _wasBluetoothSettingsOpened = false;
 
   final List<Widget> _pages = const [
     HomeContent(key: PageStorageKey('home')),
@@ -22,9 +26,28 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _pageController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _wasBluetoothSettingsOpened) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          showCustomPopup(context, '기기와 연결되었습니다.');
+        }
+        _wasBluetoothSettingsOpened = false; // 다시 초기화
+      });
+    }
   }
 
   @override
@@ -68,6 +91,8 @@ class HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 상위 HomeScreen의 State에 접근하기 위해서 아래와 같이 사용
+    final _HomeScreenState? homeScreenState = context.findAncestorStateOfType<_HomeScreenState>();
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -117,6 +142,10 @@ class HomeContent extends StatelessWidget {
                         ElevatedButton(
                           onPressed: () async {
                             print('연결하기 버튼 눌림');
+                            // 블루투스 연결 시도 여부 플래그 설정
+                            if (homeScreenState != null) {
+                              homeScreenState._wasBluetoothSettingsOpened = true;
+                            }
                             if (Platform.isAndroid) {
                               final intent = AndroidIntent(
                                 action: 'android.settings.BLUETOOTH_SETTINGS',
@@ -541,6 +570,80 @@ class MenuItem extends StatelessWidget {
       title: Text(label),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
       onTap: () {},
+    );
+  }
+}
+
+
+// 커스텀 팝업 오버레이 함수와 위젯
+void showCustomPopup(BuildContext context, String message) {
+  final overlay = Overlay.of(context);
+  final overlayEntry = OverlayEntry(
+    builder: (context) => Positioned(
+      bottom: 100,
+      left: MediaQuery.of(context).size.width * 0.1,
+      width: MediaQuery.of(context).size.width * 0.8,
+      child: _AnimatedPopup(message: message),
+    ),
+  );
+
+  overlay.insert(overlayEntry);
+
+  Future.delayed(const Duration(seconds: 2), () {
+    overlayEntry.remove();
+  });
+}
+
+class _AnimatedPopup extends StatefulWidget {
+  final String message;
+  const _AnimatedPopup({Key? key, required this.message}) : super(key: key);
+
+  @override
+  State<_AnimatedPopup> createState() => _AnimatedPopupState();
+}
+
+class _AnimatedPopupState extends State<_AnimatedPopup>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _opacity,
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          constraints: BoxConstraints(minHeight: 36),
+          decoration: BoxDecoration(
+            color: Colors.black87,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            widget.message,
+            style: const TextStyle(color: Colors.white, fontSize: 13),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:taste_q/views/front_appbar.dart';
 import 'package:taste_q/views/recipe_data_view.dart';
@@ -25,7 +26,7 @@ class RecipeDataScreen extends StatelessWidget {
                   print("요리 시작 버튼이 눌렸습니다.");
                 },
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding: EdgeInsets.symmetric(horizontal: 32.h, vertical: 16.w),
                   backgroundColor: Colors.orange,
                 ),
                 child: const Text(
