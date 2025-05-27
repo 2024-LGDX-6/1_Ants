@@ -1,8 +1,23 @@
 
-class Home {
-  final String title;
-  final String imageUrl;
+class HomeFeedback {
+  final int feedbackId;
+  final String feedbackText;
 
-  Home({required this.title, required this.imageUrl});
-
+  HomeFeedback({
+    required this.feedbackId,
+    required this.feedbackText,
+  });
 }
+
+class HomeTip {
+  final int tipId;
+  final String tipText;
+  final String tipImg;
+
+  HomeTip({
+    required this.tipId,
+    required this.tipText,
+    required this.tipImg,
+  });
+}
+

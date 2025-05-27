@@ -5,7 +5,7 @@ import '../models/recipe_mode.dart';
 import '../providers/recipe_provider.dart';
 
 // 레시피 모드 드롭다운 선택 위젯
-/// - Provider에서 현재 모드를 받아 표시하고 변경 시 Provider 갱신
+// - Provider에서 현재 모드를 받아 표시하고 변경 시 Provider 갱신
 class RecipeModeSelector extends StatelessWidget {
   const RecipeModeSelector({super.key});
 

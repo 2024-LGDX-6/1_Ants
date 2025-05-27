@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:taste_q/screens/recipe_data_screen.dart';
 import 'package:taste_q/views/safe_images.dart';
-import '../models/home.dart';
 
-// 추천 요리 목록 표시
 class SectionRecommended extends StatelessWidget {
-  final List<Home> recipeNames;
+  final List<String> recipeNames;
+  final List<String> recipeImages;
 
-  const SectionRecommended({required this.recipeNames, super.key});
+  const SectionRecommended({
+    required this.recipeNames,
+    required this.recipeImages,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +31,7 @@ class SectionRecommended extends StatelessWidget {
           SizedBox(height: 8.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children:
-            recipeNames.map((recipe) {
+            children: List.generate(recipeNames.length, (index) {
               return Column(
                 children: [
                   GestureDetector(
@@ -41,13 +43,16 @@ class SectionRecommended extends StatelessWidget {
                         ),
                       );
                     },
-                      child: safeImage(recipe.imageUrl, 90.w, 80.w)
+                    child: safeImage("images/foods/${recipeImages[index]}", 90.w, 80.w),
                   ),
                   SizedBox(height: 4.h),
-                  Text(recipe.title, style: TextStyle(fontSize: 12.sp)),
+                  Text(
+                    recipeNames[index],
+                    style: TextStyle(fontSize: 12.sp),
+                  ),
                 ],
               );
-            }).toList(),
+            }),
           ),
         ],
       ),
