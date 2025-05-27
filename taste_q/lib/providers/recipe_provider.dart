@@ -19,6 +19,4 @@ class RecipeProvider extends ChangeNotifier {
     // await _controller.saveModeToServer(); // 서버에도 반영
   }
 
-  /// 서버 연동 시 controller와 provider 역할을 분명히!
-
 }

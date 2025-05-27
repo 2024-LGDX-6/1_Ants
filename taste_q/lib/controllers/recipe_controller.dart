@@ -1,24 +1,130 @@
-import '../models/recipe.dart';
-import '../models/recipe_mode.dart';
+import 'package:taste_q/models/recipe.dart';
+import 'package:taste_q/models/recipe_mode.dart';
+import 'package:taste_q/models/recipe_seasoning_detail.dart';
+import 'package:taste_q/models/seasoning.dart';
+
+// 반환용 DTO 클래스 정의
+class RecipeDataDTO {
+  final String recipeName;
+  final String recipeImageUrl;
+  final List<String> seasoningNames;
+  final List<double> amounts;
+  final String recipeLink;
+  int mode; // 설정에서 변환
+
+  RecipeDataDTO({
+    required this.recipeName,
+    required this.recipeImageUrl,
+    required this.seasoningNames,
+    required this.amounts,
+    required this.recipeLink,
+    required this.mode,
+  });
+}
 
 class RecipeController {
-  late Recipe recipe;
+  List<Recipe> recipeList = [
+    Recipe(
+        recipeId: 0,
+        recipeName: "김치찌개",
+        recipeImageUrl: 'kimchi.jpg',
+        recipeLink: 'https://www.10000recipe.com/recipe/6864674',
+        mode: 0, // 기본: 표준모드
+    ),
+    Recipe(
+      recipeId: 1,
+      recipeName: "제육볶음",
+      recipeImageUrl: 'jeyuk.jpg',
+      recipeLink: 'https://www.10000recipe.com/recipe/6856673',
+      mode: 0, // 기본: 표준모드
+    ),
+    Recipe(
+      recipeId: 2,
+      recipeName: "불고기",
+      recipeImageUrl: 'bulgogi.jpg',
+      recipeLink: 'https://www.10000recipe.com/recipe/6867715',
+      mode: 0, // 기본: 표준모드
+    ),
+    Recipe(
+      recipeId: 3,
+      recipeName: "너비아니",
+      recipeImageUrl: 'neobiani.jpg',
+      recipeLink: 'https://www.10000recipe.com/recipe/2338708',
+      mode: 0, // 기본: 표준모드
+    ),
+  ];
 
+  List<Seasoning> seasoningList = [
+    Seasoning(seasoningId: 0, seasoningName: '소금'),
+    Seasoning(seasoningId: 1, seasoningName: '고춧가루'),
+    Seasoning(seasoningId: 2, seasoningName: '후추'),
+  ];
+
+  List<RecipeSeasoningDetail> recipeSeasoningDetails = [
+    RecipeSeasoningDetail(
+        detailId: 0,
+        recipeId: 0,
+        seasoningId: 0,
+        amount: 2.5,
+        injectionOrder: 0
+    ),
+    RecipeSeasoningDetail(
+        detailId: 1,
+        recipeId: 0,
+        seasoningId: 1,
+        amount: 10,
+        injectionOrder: 1
+    ),
+    RecipeSeasoningDetail(
+        detailId: 2,
+        recipeId: 0,
+        seasoningId: 2,
+        amount: 0.5,
+        injectionOrder: 2
+    ),
+  ];
+
+
+  // 기본 레시피 초기화
+  late Recipe recipe;
   RecipeController() {
-    recipe = getRecipeData(); // 초기화
+    recipe = recipeList[0]; // 김치찌개 레시피 사용
   }
 
-  // 초기 하드코딩 데이터 반환
-  Recipe getRecipeData() {
-    return Recipe(
-      recipeTitle: '김치찌개',
-      recipeImageUrl: 'images/foods/kimchi.jpg',
-      condimentTypes: ['소금', '고추가루', '후추'],
-      condimentUsages: [2.5, 12, 0.6],
-      recipeLinkUrl: 'https://www.10000recipe.com/recipe/3686217',
-      mode: 0, // 기본: 표준모드
+  // 특정 레시피의 데이터 반환 (Map 형식)
+  RecipeDataDTO getRecipeData(int recipeId) {
+    final recipe = recipeList.firstWhere((r) => r.recipeId == recipeId);
+    final details = recipeSeasoningDetails.where((d) => d.recipeId == recipeId).toList();
+
+    // 해당 레시피의 조미료 상세정보만 추출
+    final seasoningNames = details.map((d) {
+      final seasoning = seasoningList.firstWhere((s) => s.seasoningId == d.seasoningId);
+      return seasoning.seasoningName;
+    }).toList();
+
+    // 조미료 이름 및 사용량 추출
+    final amounts = details.map((d) => d.amount).toList();
+
+    return RecipeDataDTO(
+      recipeName: recipe.recipeName, // 레시피명
+      recipeImageUrl: recipe.recipeImageUrl, // 레시피이미지
+      seasoningNames: seasoningNames, // 조미로명 목록
+      amounts: amounts, // 조미료별 사용량 목록
+      recipeLink: recipe.recipeLink, // 레시피 원본 링크
+      mode: recipe.mode, //
     );
   }
+
+  // Recipe getRecipeData() {
+  //   return Recipe(
+  //     recipeName: '김치찌개',
+  //     recipeImageUrl: 'images/foods/kimchi.jpg',
+  //     condimentTypes: ['소금', '고추가루', '후추'],
+  //     condimentUsages: [2.5, 12, 0.6],
+  //     recipeLink: 'https://www.10000recipe.com/recipe/3686217',
+  //     mode: 0, // 기본: 표준모드
+  //   );
+  // }
 
   // RecipeModeSelector, SettingView에서 사용될 메소드
   RecipeMode getCurrentMode() => RecipeModeExtension.fromIndex(recipe.mode);
