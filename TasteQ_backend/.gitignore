@@ -13,3 +13,6 @@ __pycache__/
 # 기타
 .env
 
+
+# 구글 STT키
+src/lg-el-dx-school-api-5c8fe5856391.json
