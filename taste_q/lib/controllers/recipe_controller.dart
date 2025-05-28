@@ -46,24 +46,28 @@ class RecipeController {
         recipeId: 0,
         recipeName: "김치찌개",
         recipeImageUrl: 'kimchi.jpg',
+        cookTimeMin: 0,
         recipeLink: 'https://www.10000recipe.com/recipe/6864674',
     ),
     Recipe(
       recipeId: 1,
       recipeName: "제육볶음",
       recipeImageUrl: 'jeyuk.jpg',
+      cookTimeMin: 0,
       recipeLink: 'https://www.10000recipe.com/recipe/6856673',
     ),
     Recipe(
       recipeId: 2,
       recipeName: "불고기",
       recipeImageUrl: 'bulgogi.jpg',
+      cookTimeMin: 0,
       recipeLink: 'https://www.10000recipe.com/recipe/6867715',
     ),
     Recipe(
       recipeId: 3,
       recipeName: "너비아니",
       recipeImageUrl: 'neobiani.jpg',
+      cookTimeMin: 0,
       recipeLink: 'https://www.10000recipe.com/recipe/2338708',
     ),
   ];

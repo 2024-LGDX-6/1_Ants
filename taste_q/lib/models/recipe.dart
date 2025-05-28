@@ -4,12 +4,14 @@ class Recipe {
   final int recipeId;
   final String recipeName;
   final String recipeImageUrl;
+  final int cookTimeMin;
   final String recipeLink;
 
   Recipe({
     required this.recipeId,
     required this.recipeName,
     required this.recipeImageUrl,
+    required this.cookTimeMin,
     required this.recipeLink,
   });
 
