@@ -20,6 +20,22 @@ class RecipeDataDTO {
     required this.recipeLink,
     required this.mode,
   });
+
+  // JSON -> DTO 변환
+  factory RecipeDataDTO.fromJson(Map<String, dynamic> json) {
+    return RecipeDataDTO(
+      recipeName: json['recipeName'] as String,
+      recipeImageUrl: json['recipeImageUrl'] as String,
+      seasoningNames: List<String>.from(json['seasoningNames']),
+      amounts: List<double>.from(json['amounts'].map(
+        // num -> double 변환 처리
+        (e) => (e as num).toDouble())
+      ),
+      recipeLink: json['recipeLink'] as String,
+      mode: json.containsKey('mode') ? json['mode'] as int : 0, // mode 값 없으면 기본 0
+    );
+  }
+
 }
 
 class RecipeController {

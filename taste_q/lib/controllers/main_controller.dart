@@ -10,6 +10,15 @@ class MainDataDTO {
     required this.recipeNames,
     required this.recipeImageUrls,
   });
+
+  // JSON -> DTO 변환
+  factory MainDataDTO.fromJson(Map<String, dynamic> json) {
+    return MainDataDTO(
+      recipeNames: List<String>.from(json['recipeNames']),
+      recipeImageUrls: List<String>.from(json['recipeImageUrls']),
+    );
+  }
+
 }
 
 class MainController {
