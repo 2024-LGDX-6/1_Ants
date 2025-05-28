@@ -1,8 +1,20 @@
 from fastapi import FastAPI
 from api import user, seasoning, recipe,  user_seasoning, cooking_log ,cooking_device , custom_recipe ,device_connection_log, custom_recipe_seasoning_detail, recipe_seasoning_detail,speech
-
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# ✅ CORS 설정
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 모든 출처 허용 (개발 시)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+
 
 # 각 API 라우터 등록
 app.include_router(user.router, tags=["User"])
