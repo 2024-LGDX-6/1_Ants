@@ -32,6 +32,7 @@ class MainView extends StatelessWidget {
         } else {
           // 데이터가 정상적으로 로드된 경우
           final MainDataDTO dto = snapshot.data!;
+          final List<int> recipeIds = dto.recipeIds;
           final List<String> recipeNames = dto.recipeNames;
           final List<String> recipeImages = dto.recipeImageUrls;
 
@@ -48,6 +49,7 @@ class MainView extends StatelessWidget {
                 Center(child: safeImage('images/tasteQ.png', 120.w, 80.h)),
                 SizedBox(height: 30.h),
                 SectionRecommended(
+                  recipeIds: recipeIds,
                   recipeNames: recipeNames,
                   recipeImages: recipeImages,
                 ),

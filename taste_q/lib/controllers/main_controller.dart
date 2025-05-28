@@ -88,7 +88,7 @@ class MainController {
 
   // 레시피 데이터 불러오기 및 조합
   Future<MainDataDTO> getRecommendedRecipes() async {
-    final response = await http.get(Uri.parse('$baseUrl/recipe')); // FastAPI 엔드포인트
+    final response = await http.get(Uri.parse('$baseUrl/recipes')); // FastAPI 엔드포인트
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
@@ -115,7 +115,7 @@ class MainController {
 
   // 메인화면: 오늘의 팁
   String getRandomTip() {
-    return "lG전자의 스마트 광파오븐과 \n연동하면 빠른 예열이 가능해요!";
+    return "LG전자의 스마트 광파오븐과 \n연동하면 빠른 예열이 가능해요!";
   }
 
 }

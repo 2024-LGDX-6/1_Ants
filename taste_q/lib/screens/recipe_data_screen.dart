@@ -5,7 +5,7 @@ import 'package:taste_q/views/recipe_data_view.dart';
 import '../providers/recipe_provider.dart';
 
 class RecipeDataScreen extends StatelessWidget {
-  const RecipeDataScreen({super.key});
+  const RecipeDataScreen({super.key, required int recipeId});
 
   @override
   Widget build(BuildContext context) {

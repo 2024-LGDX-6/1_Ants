@@ -8,6 +8,7 @@ import 'package:taste_q/providers/recipe_provider.dart';
 
 // 반환용 DTO 클래스 정의
 class RecipeDataDTO {
+  final int recipeId;
   final String recipeName;
   final String recipeImageUrl;
   final List<String> seasoningNames;
@@ -16,6 +17,7 @@ class RecipeDataDTO {
   // int mode; // 설정에서 변환
 
   RecipeDataDTO({
+    required this.recipeId,
     required this.recipeName,
     required this.recipeImageUrl,
     required this.seasoningNames,
@@ -27,6 +29,7 @@ class RecipeDataDTO {
   // JSON -> DTO 변환
   factory RecipeDataDTO.fromJson(Map<String, dynamic> json) {
     return RecipeDataDTO(
+      recipeId: json['recipeId'] as int,
       recipeName: json['recipeName'] as String,
       recipeImageUrl: json['recipeImageUrl'] as String,
       seasoningNames: List<String>.from(json['seasoningNames']),
@@ -48,27 +51,6 @@ class RecipeController {
         recipeImageUrl: 'kimchi.jpg',
         cookTimeMin: 0,
         recipeLink: 'https://www.10000recipe.com/recipe/6864674',
-    ),
-    Recipe(
-      recipeId: 1,
-      recipeName: "제육볶음",
-      recipeImageUrl: 'jeyuk.jpg',
-      cookTimeMin: 0,
-      recipeLink: 'https://www.10000recipe.com/recipe/6856673',
-    ),
-    Recipe(
-      recipeId: 2,
-      recipeName: "불고기",
-      recipeImageUrl: 'bulgogi.jpg',
-      cookTimeMin: 0,
-      recipeLink: 'https://www.10000recipe.com/recipe/6867715',
-    ),
-    Recipe(
-      recipeId: 3,
-      recipeName: "너비아니",
-      recipeImageUrl: 'neobiani.jpg',
-      cookTimeMin: 0,
-      recipeLink: 'https://www.10000recipe.com/recipe/2338708',
     ),
   ];
 
@@ -103,7 +85,7 @@ class RecipeController {
   ];
 
 
-  // 기본 레시피 초기화
+  // 하드코딩 데이터 사용하는 경우: 기본 레시피 초기화
   late Recipe recipe;
   RecipeController() {
     recipe = recipeList[0]; // 김치찌개 레시피 사용
@@ -124,6 +106,7 @@ class RecipeController {
     final amounts = details.map((d) => d.amount).toList();
 
     return RecipeDataDTO(
+      recipeId: recipe.recipeId, // 레시피ID
       recipeName: recipe.recipeName, // 레시피명
       recipeImageUrl: recipe.recipeImageUrl, // 레시피이미지
       seasoningNames: seasoningNames, // 조미로명 목록
