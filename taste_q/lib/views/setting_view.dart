@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import '../providers/recipe_provider.dart';
-import '../models/recipe_mode.dart';
+import 'package:taste_q/models/recipe_mode.dart';
+import 'package:taste_q/providers/recipe_provider.dart';
 
 class SettingView extends StatelessWidget { // Provider를 적용한 모드 설정 뷰
   const SettingView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<RecipeProvider>();
-    final selectedMode = provider.selectedMode;
+    final recipeProvider = context.watch<RecipeProvider>();
+    final selectedMode = recipeProvider.mode; // 현재 모드 가져오기
 
     final List<String> modes = ["표준 모드", "웰빙 모드", "미식 모드"];
     final List<String> descriptions = [
@@ -89,7 +89,7 @@ class SettingView extends StatelessWidget { // Provider를 적용한 모드 설�
                     groupValue: selectedMode,
                     onChanged: (RecipeMode? newMode) {
                       if (newMode != null) {
-                        context.read<RecipeProvider>().updateRecipeMode(newMode);
+                        context.read<RecipeProvider>().setMode(newMode); // setMode로 변경
                       }
                     },
                   ),

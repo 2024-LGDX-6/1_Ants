@@ -10,6 +10,15 @@ class MainDataDTO {
     required this.recipeNames,
     required this.recipeImageUrls,
   });
+
+  // JSON -> DTO 변환
+  factory MainDataDTO.fromJson(Map<String, dynamic> json) {
+    return MainDataDTO(
+      recipeNames: List<String>.from(json['recipeNames']),
+      recipeImageUrls: List<String>.from(json['recipeImageUrls']),
+    );
+  }
+
 }
 
 class MainController {
@@ -19,28 +28,24 @@ class MainController {
       recipeName: "김치찌개",
       recipeImageUrl: 'kimchi.jpg',
       recipeLink: 'https://www.10000recipe.com/recipe/6864674',
-      mode: 0, // 기본: 표준모드
     ),
     Recipe(
       recipeId: 1,
       recipeName: "제육볶음",
       recipeImageUrl: 'jeyuk.jpg',
       recipeLink: 'https://www.10000recipe.com/recipe/6856673',
-      mode: 0, // 기본: 표준모드
     ),
     Recipe(
       recipeId: 2,
       recipeName: "불고기",
       recipeImageUrl: 'bulgogi.jpg',
       recipeLink: 'https://www.10000recipe.com/recipe/6867715',
-      mode: 0, // 기본: 표준모드
     ),
     Recipe(
       recipeId: 3,
       recipeName: "너비아니",
       recipeImageUrl: 'neobiani.jpg',
       recipeLink: 'https://www.10000recipe.com/recipe/2338708',
-      mode: 0, // 기본: 표준모드
     ),
   ];
 

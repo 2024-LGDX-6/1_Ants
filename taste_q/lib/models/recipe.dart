@@ -5,14 +5,12 @@ class Recipe {
   final String recipeName;
   final String recipeImageUrl;
   final String recipeLink;
-  int mode; // 번경될 값
 
   Recipe({
     required this.recipeId,
     required this.recipeName,
     required this.recipeImageUrl,
     required this.recipeLink,
-    required this.mode
   });
 
 }

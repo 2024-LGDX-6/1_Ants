@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:taste_q/models/recipe.dart';
 import 'package:taste_q/models/recipe_mode.dart';
 import 'package:taste_q/models/recipe_seasoning_detail.dart';
 import 'package:taste_q/models/seasoning.dart';
+import 'package:taste_q/providers/recipe_provider.dart';
 
 // 반환용 DTO 클래스 정의
 class RecipeDataDTO {
@@ -10,7 +13,7 @@ class RecipeDataDTO {
   final List<String> seasoningNames;
   final List<double> amounts;
   final String recipeLink;
-  int mode; // 설정에서 변환
+  // int mode; // 설정에서 변환
 
   RecipeDataDTO({
     required this.recipeName,
@@ -18,8 +21,23 @@ class RecipeDataDTO {
     required this.seasoningNames,
     required this.amounts,
     required this.recipeLink,
-    required this.mode,
+   // required this.mode,
   });
+
+  // JSON -> DTO 변환
+  factory RecipeDataDTO.fromJson(Map<String, dynamic> json) {
+    return RecipeDataDTO(
+      recipeName: json['recipeName'] as String,
+      recipeImageUrl: json['recipeImageUrl'] as String,
+      seasoningNames: List<String>.from(json['seasoningNames']),
+      amounts: List<double>.from(json['amounts'].map(
+        // num -> double 변환 처리
+        (e) => (e as num).toDouble())
+      ),
+      recipeLink: json['recipeLink'] as String,
+    );
+  }
+
 }
 
 class RecipeController {
@@ -29,28 +47,24 @@ class RecipeController {
         recipeName: "김치찌개",
         recipeImageUrl: 'kimchi.jpg',
         recipeLink: 'https://www.10000recipe.com/recipe/6864674',
-        mode: 0, // 기본: 표준모드
     ),
     Recipe(
       recipeId: 1,
       recipeName: "제육볶음",
       recipeImageUrl: 'jeyuk.jpg',
       recipeLink: 'https://www.10000recipe.com/recipe/6856673',
-      mode: 0, // 기본: 표준모드
     ),
     Recipe(
       recipeId: 2,
       recipeName: "불고기",
       recipeImageUrl: 'bulgogi.jpg',
       recipeLink: 'https://www.10000recipe.com/recipe/6867715',
-      mode: 0, // 기본: 표준모드
     ),
     Recipe(
       recipeId: 3,
       recipeName: "너비아니",
       recipeImageUrl: 'neobiani.jpg',
       recipeLink: 'https://www.10000recipe.com/recipe/2338708',
-      mode: 0, // 기본: 표준모드
     ),
   ];
 
@@ -111,7 +125,6 @@ class RecipeController {
       seasoningNames: seasoningNames, // 조미로명 목록
       amounts: amounts, // 조미료별 사용량 목록
       recipeLink: recipe.recipeLink, // 레시피 원본 링크
-      mode: recipe.mode, //
     );
   }
 
@@ -127,10 +140,13 @@ class RecipeController {
   // }
 
   // RecipeModeSelector, SettingView에서 사용될 메소드
-  RecipeMode getCurrentMode() => RecipeModeExtension.fromIndex(recipe.mode);
+  void updateMode(BuildContext context, RecipeMode newMode) {
+    // Provider에서 모드 설정
+    Provider.of<RecipeProvider>(context, listen: false).setMode(newMode);
+  }
 
-  void updateMode(RecipeMode newMode) {
-    recipe.mode = newMode.indexValue;
+  RecipeMode getCurrentMode(BuildContext context) {
+    return Provider.of<RecipeProvider>(context, listen: false).mode;
   }
 
 }
