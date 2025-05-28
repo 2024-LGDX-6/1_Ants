@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:taste_q/models/home.dart';
+import 'package:taste_q/models/image_mapping.dart';
 import 'package:taste_q/models/recipe.dart';
 
 // 반환용 DTO 클래스 정의
@@ -16,7 +17,7 @@ class MainDataDTO {
   });
 
   // JSON -> DTO 변환
-  factory MainDataDTO.fromJson(List<dynamic> jsonList, Map<int, String> imageMapping) {
+  factory MainDataDTO.fromJson(List<dynamic> jsonList, Map<int, String> recipeImageMapping) {
     // 각 필드별 리스트를 초기화
     final recipeIds = <int>[];
     final recipeNames = <String>[];
@@ -34,7 +35,7 @@ class MainDataDTO {
       // 3️. 이미지 경로는 백엔드 데이터에 없으므로
       // 프론트에서 정의한 imageMapping에서 recipe_id에 해당하는 경로를 찾아 추가
       // 만약 매핑이 없다면 'default.jpg'를 기본값으로 설정
-      recipeImageUrls.add(imageMapping[id] ?? 'default.jpg');
+      recipeImageUrls.add(recipeImageMapping[id] ?? 'default.jpg');
     }
 
     // MainDataDTO 객체 생성 및 반환
@@ -77,15 +78,6 @@ class MainController {
   // 메인화면: 오늘의 추천 요리
   static const String baseUrl = "http://192.168.219.207:8000";
 
-  // 이미지 매핑 (recipe_id → local image path)
-  final Map<int, String> imageMapping = {
-    0: 'jeyuk.jpg',
-    1: 'bulgogi.jpg',
-    2: 'kimchi.jpg',
-    3: 'neobiani.jpg',
-    // 필요시 추가
-  };
-
   // 레시피 데이터 불러오기 및 조합
   Future<MainDataDTO> getRecommendedRecipes() async {
     final response = await http.get(Uri.parse('$baseUrl/recipes')); // FastAPI 엔드포인트
@@ -98,7 +90,7 @@ class MainController {
           ? jsonData.sublist(0, 3)
           : jsonData.sublist(0, jsonData.length);
 
-      return MainDataDTO.fromJson(limitedData, imageMapping);
+      return MainDataDTO.fromJson(limitedData, recipeImageMapping);
 
     } else {
       throw Exception('서버 오류: ${response.statusCode}');

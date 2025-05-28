@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CondimentTypeUsages extends StatelessWidget {
+  final int recipeId;
   final List<String> seasoningNames;
   final List<double> amounts;
 
   const CondimentTypeUsages({
+    required this.recipeId,
     required this.seasoningNames,
     required this.amounts,
     super.key,
@@ -72,16 +74,24 @@ class CondimentTypeUsages extends StatelessWidget {
   // 하루권장량 예시: 권장 사용량 임의로 지정
   // - 별도의 모델, 컨트롤러 추가 및 서버에서 받아온다면 수정 필요!
   List<String> _getRecommendedNames(List<String> seasonings) {
-    return seasonings.where((e) => e == '소금' || e == '후추').toList();
+    return seasonings.where(
+      (e) => e == '소금' || e == '후추' || e == '고춧가루' || e == "깨소금"
+    ).toList();
   }
 
   List<String> _getRecommendedPercents(List<String> seasonings) {
-    return seasonings.where((e) => e == '소금' || e == '후추').map((e) {
+    return seasonings.where(
+      (e) => e == '소금' || e == '후추' || e == '고춧가루' || e == "깨소금"
+    ).map((e) {
       switch (e) {
         case '소금':
           return '50%';
+        case '깨소금':
+          return '50%';
         case '후추':
           return '25%';
+        case '고춧가루':
+          return '40%';
         default:
           return '10%';
       }
