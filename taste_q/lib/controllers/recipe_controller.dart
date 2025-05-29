@@ -72,36 +72,6 @@ class RecipeController {
     return RecipeDataDTO.fromJson(recipeJson, detailJson, imagePath);
   }
 
-  // 하드코딩 데이터 사용하는 경우: 기본 레시피 초기화
-  // late Recipe recipe;
-  // RecipeController() {
-  //   recipe = recipeList[0]; // 김치찌개 레시피 사용
-  // }
-
-  // 특정 레시피의 데이터 반환
-  // RecipeDataDTO getRecipeData(int recipeId) {
-  //   final recipe = recipeList.firstWhere((r) => r.recipeId == recipeId);
-  //   final details = recipeSeasoningDetails.where((d) => d.recipeId == recipeId).toList();
-  //
-  //   // 해당 레시피의 조미료 상세정보만 추출
-  //   final seasoningNames = details.map((d) {
-  //     final seasoning = seasoningList.firstWhere((s) => s.seasoningId == d.seasoningId);
-  //     return seasoning.seasoningName;
-  //   }).toList();
-  //
-  //   // 조미료 이름 및 사용량 추출
-  //   final amounts = details.map((d) => d.amount).toList();
-  //
-  //   return RecipeDataDTO(
-  //     recipeId: recipe.recipeId, // 레시피ID
-  //     recipeName: recipe.recipeName, // 레시피명
-  //     recipeImageUrl: recipe.recipeImageUrl, // 레시피이미지
-  //     seasoningNames: seasoningNames, // 조미로명 목록
-  //     amounts: amounts, // 조미료별 사용량 목록
-  //     recipeLink: recipe.recipeLink, // 레시피 원본 링크
-  //   );
-  // }
-
   // RecipeModeSelector, SettingView에서 사용될 provider 메소드
   void updateMode(BuildContext context, RecipeMode newMode) {
     // Provider에서 모드 설정
