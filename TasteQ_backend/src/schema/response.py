@@ -18,7 +18,8 @@ class RecipeResponse(BaseModel):
     recipe_id: int
     recipe_name: str
     cook_time_min: int
-    recipe_link: Optional[str] = None  # 링크는 NULL 허용
+    recipe_link: Optional[str] = None
+    main_ingredient: Optional[str] = None  # ✅ 수정 필요
 
     class Config:
         from_attributes = True
@@ -87,6 +88,7 @@ class CustomRecipeResponse(BaseModel):
     user_id: int
     custom_recipe_name: str
     cook_time_min: Optional[int] = None
+    main_ingredient: str
 
     class Config:
         from_attributes = True
@@ -108,6 +110,7 @@ class CustomRecipeResponse(BaseModel):
     user_name: str
     custom_recipe_name: str
     cook_time_min: int
+    custom_main_ingredient: str
 
     class Config:
         from_attributes = True
@@ -121,6 +124,18 @@ class CustomRecipeSeasoningDetailResponse(BaseModel):
     amount: int
     unit: str
     injection_order: int
+
+    class Config:
+        from_attributes = True
+
+
+class UserFridgeResponse(BaseModel):
+    fridge_Ingredients_id: int
+    device_id: int
+    device_name: str
+    user_id: int
+    user_name: str
+    fridge_Ingredients: str
 
     class Config:
         from_attributes = True

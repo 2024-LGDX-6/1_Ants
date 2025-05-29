@@ -31,3 +31,13 @@ class CustomRecipeSeasoningDetailCreateRequest(BaseModel):
     amount: int
     unit: str
     injection_order: int
+
+
+class UserFridgeCreateRequest(BaseModel):
+    device_id: int
+    fridge_Ingredients: str
+
+
+class UserFridgeDeleteRequest(BaseModel):
+    device_id: int
+    fridge_Ingredients: str
