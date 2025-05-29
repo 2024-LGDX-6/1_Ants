@@ -3,7 +3,22 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:taste_q/screens/loading_screen.dart';
 
 class RecipeStartButton extends StatelessWidget {
-  const RecipeStartButton({super.key});
+  final String recipeImageUrl;
+  final String recipeName;
+  final int recipeId;
+  final List<String> seasoningName;
+  final List<double> amounts;
+  final String recipeLink;
+
+  const RecipeStartButton({
+    super.key,
+    required this.recipeImageUrl,
+    required this.recipeName,
+    required this.recipeId,
+    required this.seasoningName,
+    required this.amounts,
+    required this.recipeLink,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +29,14 @@ class RecipeStartButton extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => LoadingScreen(),
+              builder: (context) => LoadingScreen(
+                recipeImageUrl: recipeImageUrl,
+                recipeName: recipeName,
+                recipeId: recipeId,
+                seasoningName: seasoningName,
+                amounts: amounts,
+                recipeLink: recipeLink,
+              ),
             ),
           );
         },
