@@ -86,9 +86,10 @@ class CookingDeviceResponse(BaseModel):
 class CustomRecipeResponse(BaseModel):
     custom_recipe_id: int
     user_id: int
+    user_name: str
     custom_recipe_name: str
-    cook_time_min: Optional[int] = None
-    main_ingredient: str
+    cook_time_min: int
+    custom_main_ingredient: str  # 이 필드가 반드시 있어야 재료 기반 필터링 가능
 
     class Config:
         from_attributes = True

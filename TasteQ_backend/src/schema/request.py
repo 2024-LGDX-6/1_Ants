@@ -10,10 +10,6 @@ class CookingLogCreateRequest(BaseModel):
     servings: int
     recipe_type: int
 
-class CustomRecipeCreateRequest(BaseModel):
-    user_id: int
-    custom_recipe_name: str
-    cook_time_min: Optional[int] = None
 
 class DeviceConnectionLogCreateRequest(BaseModel):
     device_id: int
@@ -24,6 +20,7 @@ class CustomRecipeCreateRequest(BaseModel):
     user_id: int
     custom_recipe_name: str
     cook_time_min: int
+    custom_main_ingredient: str
 
 class CustomRecipeSeasoningDetailCreateRequest(BaseModel):
     custom_recipe_id: int
