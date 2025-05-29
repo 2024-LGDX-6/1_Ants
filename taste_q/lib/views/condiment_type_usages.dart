@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:taste_q/controllers/recommend_controller.dart';
+import 'package:taste_q/providers/recipe_provider.dart';
+import 'package:taste_q/models/recipe_mode.dart';
 
+// 조미료 사용랑, 권장량 출력 view
 class CondimentTypeUsages extends StatelessWidget {
   final int recipeId;
   final List<String> seasoningNames;
@@ -20,13 +24,28 @@ class CondimentTypeUsages extends StatelessWidget {
     final recommendedNames = recommendController.getRecommendedNames(seasoningNames);
     final recommendedPercents = recommendController.getRecommendedPercents(seasoningNames);
 
+    // Provider에서 현재 모드 가져오기 (자동 rebuild)
+    final mode = context.watch<RecipeProvider>().mode;
+
+    // amounts 변환 로직 적용
+    final modifiedAmounts = amounts.map((originalAmount) {
+      switch (mode) {
+        case RecipeMode.wellness:
+          return originalAmount - (originalAmount * 0.1); // 웰빙 모드: 1/10
+        case RecipeMode.gourmet:
+          return originalAmount + (originalAmount * 0.1); // 미식 모드: 10배
+        default:
+          return originalAmount; // 표준 모드: 그대로
+      }
+    }).toList();
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _buildCard(
           title: "예상 조미료 사용량",
           names: seasoningNames,
-          values: amounts.map((e) => "${e.toString()}g").toList(),
+          values: modifiedAmounts.map((e) => "${e.toStringAsFixed(2)}g").toList(),
         ),
         _buildCard(
           title: "하루 권장 사용량",

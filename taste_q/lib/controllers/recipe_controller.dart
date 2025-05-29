@@ -78,7 +78,7 @@ class RecipeController {
         case RecipeMode.wellness:
           return originalAmount - (originalAmount * 0.1); // 웰빙모드: 1/10 빼기
         case RecipeMode.gourmet:
-          return originalAmount + (originalAmount / 0.1); // 미식모드: 10배 추가
+          return originalAmount + (originalAmount * 0.1); // 미식모드: 10배 추가
         case RecipeMode.standard:
         return originalAmount; // 표준모드: 그대로
       }
