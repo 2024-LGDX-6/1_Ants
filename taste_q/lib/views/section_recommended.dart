@@ -4,10 +4,12 @@ import 'package:taste_q/screens/recipe_data_screen.dart';
 import 'package:taste_q/views/safe_images.dart';
 
 class SectionRecommended extends StatelessWidget {
+  final List<int> recipeIds;
   final List<String> recipeNames;
   final List<String> recipeImages;
 
   const SectionRecommended({
+    required this.recipeIds,
     required this.recipeNames,
     required this.recipeImages,
     super.key,
@@ -39,7 +41,8 @@ class SectionRecommended extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => RecipeDataScreen(),
+                          builder: (context) => RecipeDataScreen(
+                              recipeId: recipeIds[index]),
                         ),
                       );
                     },

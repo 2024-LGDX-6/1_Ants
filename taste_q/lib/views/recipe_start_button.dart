@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:taste_q/screens/loading_screen.dart';
 
 class RecipeStartButton extends StatelessWidget {
   const RecipeStartButton({super.key});
@@ -10,7 +11,12 @@ class RecipeStartButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () {
           // 버튼 클릭 시 동작 정의
-          print("요리 시작 버튼이 눌렸습니다.");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LoadingScreen(),
+            ),
+          );
         },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(horizontal: 32.h, vertical: 16.w),

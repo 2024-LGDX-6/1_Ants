@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:taste_q/controllers/recommend_controller.dart';
 
 class CondimentTypeUsages extends StatelessWidget {
+  final int recipeId;
   final List<String> seasoningNames;
   final List<double> amounts;
 
   const CondimentTypeUsages({
+    required this.recipeId,
     required this.seasoningNames,
     required this.amounts,
     super.key,
@@ -13,6 +16,10 @@ class CondimentTypeUsages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final recommendController = RecommendController();
+    final recommendedNames = recommendController.getRecommendedNames(seasoningNames);
+    final recommendedPercents = recommendController.getRecommendedPercents(seasoningNames);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -23,8 +30,8 @@ class CondimentTypeUsages extends StatelessWidget {
         ),
         _buildCard(
           title: "하루 권장 사용량",
-          names: _getRecommendedNames(seasoningNames),
-          values: _getRecommendedPercents(seasoningNames),
+          names: recommendedNames,
+          values: recommendedPercents,
         ),
       ],
     );
@@ -69,22 +76,4 @@ class CondimentTypeUsages extends StatelessWidget {
     );
   }
 
-  // 하루권장량 예시: 권장 사용량 임의로 지정
-  // - 별도의 모델, 컨트롤러 추가 및 서버에서 받아온다면 수정 필요!
-  List<String> _getRecommendedNames(List<String> seasonings) {
-    return seasonings.where((e) => e == '소금' || e == '후추').toList();
-  }
-
-  List<String> _getRecommendedPercents(List<String> seasonings) {
-    return seasonings.where((e) => e == '소금' || e == '후추').map((e) {
-      switch (e) {
-        case '소금':
-          return '50%';
-        case '후추':
-          return '25%';
-        default:
-          return '10%';
-      }
-    }).toList();
-  }
 }

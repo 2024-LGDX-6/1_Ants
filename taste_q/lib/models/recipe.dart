@@ -4,15 +4,15 @@ class Recipe {
   final int recipeId;
   final String recipeName;
   final String recipeImageUrl;
+  final int cookTimeMin;
   final String recipeLink;
-  int mode; // 번경될 값
 
   Recipe({
     required this.recipeId,
     required this.recipeName,
     required this.recipeImageUrl,
+    required this.cookTimeMin,
     required this.recipeLink,
-    required this.mode
   });
 
 }

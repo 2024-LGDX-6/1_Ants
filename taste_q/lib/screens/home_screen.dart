@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taste_q/screens/tasteq_main_screen.dart';
+import 'package:taste_q/screens/fridge_main_screen.dart'; // 추가
+import 'package:taste_q/views/front_appbar.dart'; // 기존 홈바 import 추가
 import 'package:android_intent_plus/android_intent.dart';
 import 'dart:io' show Platform;
 import 'dart:async';
@@ -53,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // 배경 흰색으로 설정
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
@@ -62,24 +65,32 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         },
         children: _pages,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          _pageController.animateToPage(
-            index,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-          BottomNavigationBarItem(icon: Icon(Icons.devices), label: '디바이스'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: '리포트'),
-          BottomNavigationBarItem(icon: Icon(Icons.menu), label: '메뉴'),
-        ],
+      bottomNavigationBar: Material(
+        elevation: 8, // 그림자 효과 유지
+        color: Colors.white, // 완전 흰색
+        child: Padding(
+          padding: const EdgeInsets.only(top: 4), // 상단 여백 줄여서 바가 위로 올라오게
+          child: BottomNavigationBar(
+            backgroundColor: Colors.white,
+            currentIndex: _currentIndex,
+            selectedItemColor: Colors.black,
+            unselectedItemColor: Colors.grey,
+            type: BottomNavigationBarType.fixed,
+            onTap: (index) {
+              _pageController.animateToPage(
+                index,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            },
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
+              BottomNavigationBarItem(icon: Icon(Icons.devices), label: '디바이스'),
+              BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: '리포트'),
+              BottomNavigationBarItem(icon: Icon(Icons.menu), label: '메뉴'),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -353,12 +364,21 @@ class DeviceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => TasteqMainScreen(),
-          ),
-        );
+        if (label == '냉장고') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const FridgeMainScreen(),
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TasteqMainScreen(),
+            ),
+          );
+        }
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFFF1F1F1),
@@ -378,6 +398,46 @@ class DeviceTile extends StatelessWidget {
     );
   }
 }
+
+
+// ========================= FridgeMainScreen 수정 ==========================
+
+// (fridge_main_screen.dart에서 아래 코드가 있어야 합니다. body의 Column 시작 부분에 아래 위젯을 추가하세요.)
+
+// 예시:
+/*
+body: SingleChildScrollView(
+  child: Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 여기부터 추가
+        const SizedBox(height: 16),
+        Text('우리집 냉장고 배치', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        Card(
+          color: Color(0xFFE2E2E2),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Image.asset('images/fridge_layout.png', height: 140, fit: BoxFit.cover),
+                const SizedBox(height: 8),
+                const Text('냉장고의 위치와 연결 상태를 확인하세요.', style: TextStyle(fontSize: 12)),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+        // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 여기까지
+        // ...기존 내용
+      ]
+    )
+  )
+)
+*/
 
 // ReportScreen: 전력량 모니터링 UI 임시 구현
 class ReportScreen extends StatelessWidget {
