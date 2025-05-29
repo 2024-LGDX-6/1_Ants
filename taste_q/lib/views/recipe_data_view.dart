@@ -28,7 +28,7 @@ class _RecipeDataViewState extends State<RecipeDataView> {
   void initState() {
     super.initState();
     // Future를 initState에서 초기화 -> build() 재호출에도 Future 유지
-    _recipeFuture = widget.controller.getRecipeData(widget.recipeId);
+    _recipeFuture = widget.controller.getRecipeData(widget.recipeId, context);
   }
 
   @override

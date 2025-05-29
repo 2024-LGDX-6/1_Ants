@@ -48,7 +48,7 @@ class RecipeController {
   static const String baseUrl = "http://192.168.219.207:8000";
 
   // 특정 레시피ID로 레시피 및 시즈닝 데이터를 백엔드에서 받아 RecipeDataDTO 반환
-  Future<RecipeDataDTO> getRecipeData(int recipeId) async {
+  Future<RecipeDataDTO> getRecipeData(int recipeId, BuildContext context) async {
     // 1. 레시피 기본 정보 요청
     final recipeResponse = await http.get(Uri.parse(
         '$baseUrl/recipes/$recipeId'));
@@ -68,8 +68,31 @@ class RecipeController {
     // 3. 이미지 경로 매핑
     final imagePath = recipeImageMapping[recipeId] ?? 'default.jpg';
 
-    // 4. RecipeDataDTO 객체 반환
-    return RecipeDataDTO.fromJson(recipeJson, detailJson, imagePath);
+    // 4. 현재 모드 가져오기 (Provider)
+    final mode = Provider.of<RecipeProvider>(context, listen: false).mode;
+
+    // 5. 모드에 따른 amounts 연산 후 변환
+    List<double> modifiedAmounts = detailJson.map((e) {
+      double originalAmount = (e['amount'] as num).toDouble();
+      switch (mode) {
+        case RecipeMode.wellness:
+          return originalAmount - (originalAmount * 0.1); // 웰빙모드: 1/10 빼기
+        case RecipeMode.gourmet:
+          return originalAmount + (originalAmount / 0.1); // 미식모드: 10배 추가
+        case RecipeMode.standard:
+        return originalAmount; // 표준모드: 그대로
+      }
+    }).toList();
+
+    // 6. RecipeDataDTO 반환 (amounts를 변환값으로 교체)
+    return RecipeDataDTO(
+      recipeId: recipeJson['recipe_id'],
+      recipeName: recipeJson['recipe_name'],
+      recipeImageUrl: imagePath,
+      seasoningNames: detailJson.map((e) => e['seasoning_name'] as String).toList(),
+      amounts: modifiedAmounts,
+      recipeLink: recipeJson['recipe_link'],
+    );
   }
 
   // RecipeModeSelector, SettingView에서 사용될 provider 메소드
