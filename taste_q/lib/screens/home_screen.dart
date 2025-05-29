@@ -53,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // 배경 흰색으로 설정
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
@@ -62,24 +63,32 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         },
         children: _pages,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          _pageController.animateToPage(
-            index,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-          BottomNavigationBarItem(icon: Icon(Icons.devices), label: '디바이스'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: '리포트'),
-          BottomNavigationBarItem(icon: Icon(Icons.menu), label: '메뉴'),
-        ],
+      bottomNavigationBar: Material(
+        elevation: 8, // 그림자 효과 유지
+        color: Colors.white, // 완전 흰색
+        child: Padding(
+          padding: const EdgeInsets.only(top: 4), // 상단 여백 줄여서 바가 위로 올라오게
+          child: BottomNavigationBar(
+            backgroundColor: Colors.white,
+            currentIndex: _currentIndex,
+            selectedItemColor: Colors.black,
+            unselectedItemColor: Colors.grey,
+            type: BottomNavigationBarType.fixed,
+            onTap: (index) {
+              _pageController.animateToPage(
+                index,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            },
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
+              BottomNavigationBarItem(icon: Icon(Icons.devices), label: '디바이스'),
+              BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: '리포트'),
+              BottomNavigationBarItem(icon: Icon(Icons.menu), label: '메뉴'),
+            ],
+          ),
+        ),
       ),
     );
   }
