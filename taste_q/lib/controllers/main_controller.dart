@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:taste_q/models/home.dart';
 import 'package:taste_q/models/image_mapping.dart';
@@ -17,7 +18,8 @@ class MainDataDTO {
   });
 
   // JSON -> DTO 변환
-  factory MainDataDTO.fromJson(List<dynamic> jsonList, Map<int, String> recipeImageMapping) {
+  factory MainDataDTO.fromJson(
+      List<dynamic> jsonList, Map<int, String> recipeImageMapping) {
     // 각 필드별 리스트를 초기화
     final recipeIds = <int>[];
     final recipeNames = <String>[];
@@ -85,10 +87,12 @@ class MainController {
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
 
-      // 추천 레시피 상위 3개 선택
-      final limitedData = jsonData.length >= 3
-          ? jsonData.sublist(0, 3)
-          : jsonData.sublist(0, jsonData.length);
+      // 추천 레시피 중복 없이 랜덤 3개 선택
+      final random = Random();
+      final shuffledList = List.from(jsonData.toSet())..shuffle(random);
+      final limitedData = shuffledList.length >= 3
+          ? shuffledList.sublist(0, 3)
+          : shuffledList.sublist(0, shuffledList.length);
 
       return MainDataDTO.fromJson(limitedData, recipeImageMapping);
 
