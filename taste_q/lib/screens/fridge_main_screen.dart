@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:taste_q/views/fridge_front_appbar.dart';
 import 'package:taste_q/screens/tasteq_main_screen.dart';
+import 'package:taste_q/screens/ingredient_screen.dart';
 
 class FridgeMainScreen extends StatefulWidget {
   const FridgeMainScreen({super.key});
@@ -100,7 +101,10 @@ class _FridgeMainScreenState extends State<FridgeMainScreen> with WidgetsBinding
                       margin: const EdgeInsets.only(right: 8),
                       child: ElevatedButton(
                         onPressed: () {
-                          // TODO: 재료 보기 기능 연결
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const IngredientScreen()),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFEFEFEF),
