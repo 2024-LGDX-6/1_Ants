@@ -1,36 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
-// 반환용 DTO 클래스 정의
-class UserFridgeDataDTO {
-  final int fridgeIngredientsId;
-  final int deviceId; // 냉장고ID: 3번
-  final String deviceName;
-  final int userId;
-  final String userName;
-  final String fridgeIngredients;
-
-  UserFridgeDataDTO({
-    required this.fridgeIngredientsId,
-    required this.deviceId,
-    required this.deviceName,
-    required this.userId,
-    required this.userName,
-    required this.fridgeIngredients,
-  });
-
-  // JSON -> DTO 변환 factory 생성자
-  factory UserFridgeDataDTO.fromJson(Map<String, dynamic> json) {
-    return UserFridgeDataDTO(
-      fridgeIngredientsId: json['fridge_Ingredients_id'] as int,
-      deviceId: json['device_id'] as int,
-      deviceName: json['device_name'] as String,
-      userId: json['user_id'] as int,
-      userName: json['user_name'] as String,
-      fridgeIngredients: json['fridge_Ingredients'] as String,
-    );
-  }
-}
+import 'package:taste_q/controllers/dto/user_fridge_data_dto.dart';
 
 // 데이터 반환 컨트롤러
 class UserFridgeController {
@@ -96,19 +66,5 @@ class UserFridgeController {
       throw Exception('삭제 실패');
     }
   }
-
-  // Future<void> deleteFridgeIngredient(int deviceId, String fridgeIngredient) async {
-  //   final response = await http.post(
-  //     Uri.parse('$baseUrl/user-fridge'), // POST 방식 엔드포인트
-  //     headers: {'Content-Type': 'application/json'},
-  //     body: jsonEncode({
-  //       'device_id': deviceId,
-  //       'fridge_Ingredients': fridgeIngredient,
-  //     }),
-  //   );
-  //   if (response.statusCode != 200) {
-  //     throw Exception('삭제 실패');
-  //   }
-  // }
 
 }

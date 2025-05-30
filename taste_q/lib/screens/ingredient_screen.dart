@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:taste_q/controllers/dto/user_fridge_data_dto.dart';
 import 'package:taste_q/controllers/user_fridge_controller.dart';
 import 'package:taste_q/views/ingredient_appbar.dart';
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:taste_q/controllers/dto/recipe_data_dto.dart';
 import 'package:taste_q/controllers/recipe_controller.dart';
 import 'package:taste_q/views/recipe_link_button.dart';
 import 'package:taste_q/views/recipe_mode_selector.dart';

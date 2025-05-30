@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:taste_q/controllers/dto/main_data_dto.dart';
 import 'package:taste_q/controllers/main_controller.dart';
 import 'package:taste_q/screens/recipe_data_screen.dart';
+import 'package:taste_q/views/front_appbar.dart';
 
 class RecipeListScreen extends StatefulWidget {
   const RecipeListScreen({super.key});
@@ -23,7 +25,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('전체 레시피 리스트')),
+      appBar: FrontAppBar(),
       body: FutureBuilder<MainDataDTO>(
         future: _futureRecipes,
         builder: (context, snapshot) {
