@@ -78,7 +78,7 @@ class MainController {
   ];
 
   // 메인화면: 오늘의 추천 요리
-  static const String baseUrl = "http://192.168.219.207:8000";
+  static const String baseUrl = "http://192.168.219.130:8000";
 
   // 레시피 데이터 불러오기 및 조합
   Future<MainDataDTO> getRecommendedRecipes() async {
