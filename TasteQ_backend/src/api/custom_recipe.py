@@ -39,6 +39,16 @@ def search_custom_recipes_by_user_fridge(user_id: int):
         raise HTTPException(status_code=404, detail="No custom recipes found based on user's fridge")
     return recipes
 
+
+@router.get("/custom-recipes/by-custom-recipe-name/{recipe_name}", response_model=CustomRecipeResponse)
+def get_custom_recipe(recipe_name: str):
+    recipe = service.get_custom_recipe_by_name(recipe_name)
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Custom recipe not found")
+    return recipe
+
+
+
 @router.get("/custom-recipes/{recipe_id}", response_model=CustomRecipeResponse)
 def get_custom_recipe(recipe_id: int):
     recipe = service.get_custom_recipe_by_id(recipe_id)
