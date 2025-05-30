@@ -1,16 +1,16 @@
 import 'package:taste_q/models/image_mapping.dart';
 
 class CustomRecipeDataDTO {
-  final List<int> customRecipeIds;
-  final List<String> customReceipeNames;
-  final List<String> customRecipeImageUrls;
-  final List<String> customIngredients;
+  final List<int> recipeIds; // customRecipeIds
+  final List<String> recipeNames; // customReceipeNames
+  final List<String> recipeImageUrls; // customRecipeImageUrls
+  final List<String> recipeIngredients; // customRecipeIngredients
 
   CustomRecipeDataDTO({
-    required this.customRecipeIds,
-    required this.customReceipeNames,
-    required this.customRecipeImageUrls,
-    required this.customIngredients,
+    required this.recipeIds,
+    required this.recipeNames,
+    required this.recipeImageUrls,
+    required this.recipeIngredients,
   });
 
   // JSON -> DTO 변환
@@ -42,25 +42,25 @@ class CustomRecipeDataDTO {
 
     // MainDataDTO 객체 생성 및 반환
     return CustomRecipeDataDTO(
-        customRecipeIds: customRecipeIds,
-        customReceipeNames: customReceipeNames,
-        customRecipeImageUrls: customRecipeImageUrls,
-        customIngredients: customIngredients
+        recipeIds: customRecipeIds,
+        recipeNames: customReceipeNames,
+        recipeImageUrls: customRecipeImageUrls,
+        recipeIngredients: customIngredients
     );
   }
 }
 
 class CustomRecipeDataDetailDto {
-  final int customRecipeId;
-  final String customRecipeName;
-  final String customRecipeImageUrl;
-  final List<String> seasoningNames;
-  final List<double> amounts;
+  final int recipeId; // customRecipeId
+  final String recipeName; // customRecipeName
+  final String recipeImageUrl; // customRecipeImageUrl
+  final List<String> seasoningNames; // seasoningNames
+  final List<double> amounts; // amounts
 
   CustomRecipeDataDetailDto({
-    required this.customRecipeId,
-    required this.customRecipeName,
-    required this.customRecipeImageUrl,
+    required this.recipeId,
+    required this.recipeName,
+    required this.recipeImageUrl,
     required this.seasoningNames,
     required this.amounts,
   });
@@ -74,9 +74,9 @@ class CustomRecipeDataDetailDto {
     final amounts = details.map((e) => (e['amount'] as num).toDouble()).toList();
 
     return CustomRecipeDataDetailDto(
-      customRecipeId: json['custom_recipe_id'],
-      customRecipeName: json['custom_recipe_name'],
-      customRecipeImageUrl: imagePath, // 이미지 매핑 경로를 전달
+      recipeId: json['custom_recipe_id'],
+      recipeName: json['custom_recipe_name'],
+      recipeImageUrl: imagePath, // 이미지 매핑 경로를 전달
       seasoningNames: seasoningNames,
       amounts: amounts,
     );

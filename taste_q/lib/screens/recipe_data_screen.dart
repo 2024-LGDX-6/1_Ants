@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:taste_q/controllers/recipe_controller.dart';
+import 'package:taste_q/models/route_entry_type.dart';
 import 'package:taste_q/views/front_appbar.dart';
 import 'package:taste_q/views/recipe_data_view.dart';
 import '../providers/recipe_provider.dart';
 
 class RecipeDataScreen extends StatelessWidget {
+  final RouteEntryType routeEntryType;
   final int recipeId;
 
-  const RecipeDataScreen({super.key, required this.recipeId});
+  const RecipeDataScreen({
+    super.key,
+    required this.routeEntryType,
+    required this.recipeId
+  });
 
   @override
   Widget build(BuildContext context) {
-    final controller = RecipeController();
+    // final controller = RecipeController();
 
     return Scaffold(
       appBar: FrontAppBar(),
@@ -20,8 +26,9 @@ class RecipeDataScreen extends StatelessWidget {
       body: Consumer<RecipeProvider>(
         builder: (context, provider, _) {
           return RecipeDataView(
-            controller: controller,
-            recipeId: recipeId
+            routeEntryType: routeEntryType,
+            // controller: controller,
+            recipeId: recipeId,
           );
         },
       ),
