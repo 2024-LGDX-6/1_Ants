@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:taste_q/screens/recipe_list_screen.dart';
 
 // 마이 레시피, 메뉴 찾기 버튼
 class SectionButtons extends StatelessWidget {
@@ -19,7 +20,14 @@ class SectionButtons extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => RecipeListScreen(),
+                ),
+              );
+            },
             style: ElevatedButton.styleFrom(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16.r),
@@ -32,7 +40,11 @@ class SectionButtons extends StatelessWidget {
         SizedBox(width: 12.w),
         Expanded(
           child: ElevatedButton.icon(
-            icon: Icon(Icons.bookmark_border, color: Colors.black, weight: 10),
+            icon: Icon(
+                Icons.content_paste_search_outlined,
+                color: Colors.black,
+                weight: 10
+            ),
             label: Text(
               "메뉴 찾기",
               style: TextStyle(
@@ -40,7 +52,14 @@ class SectionButtons extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecipeListScreen(),
+                ),
+              );
+            },
             style: ElevatedButton.styleFrom(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16.r),

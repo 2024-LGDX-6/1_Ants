@@ -10,11 +10,13 @@ class MainDataDTO {
   final List<int> recipeIds;
   final List<String> recipeNames;
   final List<String> recipeImageUrls;
+  final List<String> recipeIngredients;
 
   MainDataDTO({
     required this.recipeIds,
     required this.recipeNames,
     required this.recipeImageUrls,
+    required this.recipeIngredients,
   });
 
   // JSON -> DTO 변환
@@ -24,6 +26,7 @@ class MainDataDTO {
     final recipeIds = <int>[];
     final recipeNames = <String>[];
     final recipeImageUrls = <String>[];
+    final recipeIngredients = <String>[];
 
     // JSON 배열 데이터를 순회하면서 각 필드 추출
     for (var item in jsonList) {
@@ -38,6 +41,9 @@ class MainDataDTO {
       // 프론트에서 정의한 imageMapping에서 recipe_id에 해당하는 경로를 찾아 추가
       // 만약 매핑이 없다면 'default.jpg'를 기본값으로 설정
       recipeImageUrls.add(recipeImageMapping[id] ?? 'default.jpg');
+
+      // 4. main_ingredient를 추출하고 리스트에 추가
+      recipeIngredients.add(item['main_ingredient']);
     }
 
     // MainDataDTO 객체 생성 및 반환
@@ -45,6 +51,7 @@ class MainDataDTO {
       recipeIds: recipeIds,
       recipeNames: recipeNames,
       recipeImageUrls: recipeImageUrls,
+      recipeIngredients: recipeIngredients
     );
   }
 
@@ -59,6 +66,7 @@ class MainController {
       recipeImageUrl: 'neobiani.jpg',
       cookTimeMin: 0,
       recipeLink: 'https://www.10000recipe.com/recipe/2338708',
+      recipeIngredient: "고기"
     ),
   ];
 
@@ -77,12 +85,26 @@ class MainController {
     ),
   ];
 
-  // 메인화면: 오늘의 추천 요리
   static const String baseUrl = "http://192.168.219.130:8000";
 
-  // 레시피 데이터 불러오기 및 조합
+  // 전체 레시피 목록 불러오기
+  Future<MainDataDTO> getAllRecipes() async {
+    final response = await http.get(Uri.parse('$baseUrl/recipes'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = json.decode(response.body);
+
+      return MainDataDTO.fromJson(jsonData, recipeImageMapping);
+    } else {
+      throw Exception('서버 오류: ${response.statusCode}');
+    }
+  }
+
+
+  // 메인화면: 오늘의 추천 요리
+  // 레시피 데이터 중 추천용 3개 불러오기
   Future<MainDataDTO> getRecommendedRecipes() async {
-    final response = await http.get(Uri.parse('$baseUrl/recipes')); // FastAPI 엔드포인트
+    final response = await http.get(Uri.parse('$baseUrl/recipes'));
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
