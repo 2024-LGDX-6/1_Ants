@@ -27,17 +27,18 @@ def get_recipe_by_id(recipe_id: int):
     finally:
         conn.close()
 
-def get_recipe_by_name(recipe_name: str):
+def get_recipes_by_name(names: list[str]):
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
-            sql = """
+            placeholders = ', '.join(['%s'] * len(names))
+            sql = f"""
                 SELECT recipe_id, recipe_name, cook_time_min, recipe_link, main_ingredient
                 FROM recipe
-                WHERE recipe_name = %s
+                WHERE recipe_name IN ({placeholders})
             """
-            cursor.execute(sql, (recipe_name,))
-            return cursor.fetchone()
+            cursor.execute(sql, names)
+            return cursor.fetchall()
     finally:
         conn.close()
 

@@ -47,22 +47,22 @@ def get_custom_recipe_by_id(recipe_id: int):
     finally:
         conn.close()
 
-def get_custom_recipe_by_name(recipe_name: str):
+def get_custom_recipes_by_name(names: list[str]):
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
-            sql = """
+            placeholders = ', '.join(['%s'] * len(names))
+            sql = f"""
                 SELECT cr.custom_recipe_id, cr.user_id, u.name AS user_name,
                        cr.custom_recipe_name, cr.cook_time_min, cr.custom_main_ingredient
                 FROM custom_recipe cr
                 JOIN user u ON cr.user_id = u.user_id
-                WHERE cr.custom_recipe_name = %s
+                WHERE cr.custom_recipe_name IN ({placeholders})
             """
-            cursor.execute(sql, (recipe_name,))
-            return cursor.fetchone()
+            cursor.execute(sql, names)
+            return cursor.fetchall()
     finally:
         conn.close()
-
 
 def get_custom_recipes_by_main_ingredients(ingredients: list[str]):
     conn = get_connection()

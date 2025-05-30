@@ -40,12 +40,21 @@ def search_custom_recipes_by_user_fridge(user_id: int):
     return recipes
 
 
-@router.get("/custom-recipes/by-custom-recipe-name/{recipe_name}", response_model=CustomRecipeResponse)
-def get_custom_recipe(recipe_name: str):
-    recipe = service.get_custom_recipe_by_name(recipe_name)
-    if not recipe:
-        raise HTTPException(status_code=404, detail="Custom recipe not found")
-    return recipe
+# 레시피 이름으로 복수 검색
+@router.get("/custom-recipes/by-names", response_model=List[CustomRecipeResponse])
+def get_custom_recipes_by_names(
+    names: Union[List[str], str] = Query(..., description="레시피 이름 (복수 가능)")
+):
+    if isinstance(names, str):
+        names = [names]
+
+    recipes = service.get_custom_recipes_by_name(names)
+    if not recipes:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No custom recipes found with names: {', '.join(names)}"
+        )
+    return recipes
 
 
 

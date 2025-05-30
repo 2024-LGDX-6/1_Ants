@@ -38,13 +38,17 @@ def search_recipes_by_user_fridge(user_id: int):
         raise HTTPException(status_code=404, detail="No matching recipes found for user’s fridge ingredients")
     return recipes
 
+@router.get("/recipes/by-recipe-names", response_model=List[RecipeResponse])
+def get_recipes_by_name(
+    names: Union[List[str], str] = Query(..., description="레시피 이름 (복수 가능)")
+):
+    if isinstance(names, str):
+        names = [names]
 
-@router.get("/recipes/by-recipe-name/{recipe_name}", response_model=RecipeResponse)
-def get_recipe(recipe_name: str):
-    recipe = recipe_service.get_recipe_by_name(recipe_name)
-    if not recipe:
-        raise HTTPException(status_code=404, detail="Recipe not found")
-    return recipe
+    recipes = recipe_service.get_recipes_by_name(names)
+    if not recipes:
+        raise HTTPException(status_code=404, detail="Recipe(s) not found")
+    return recipes
 
 
 @router.get("/recipes/{recipe_id}", response_model=RecipeResponse)

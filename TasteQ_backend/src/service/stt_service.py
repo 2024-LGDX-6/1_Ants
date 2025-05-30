@@ -3,8 +3,8 @@ from google.cloud import speech_v1p1beta1 as speech
 import asyncio
 from eunjeon import Mecab
 import json
-from recipe_service import get_recipes_by_main_ingredients,get_recipe_by_name
-from custom_recipe_service import get_custom_recipes_by_main_ingredients
+from service.recipe_service import get_recipes_by_main_ingredients,get_recipes_by_name
+from service.custom_recipe_service import get_custom_recipes_by_main_ingredients,get_custom_recipes_by_name
 from database.connection import get_connection
 
 mecab = Mecab()
@@ -13,17 +13,32 @@ def get_all_recipe_names() -> set[str]:
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
+            # 표준 레시피 이름
             cursor.execute("SELECT recipe_name FROM recipe")
-            return set(row['recipe_name'] for row in cursor.fetchall())
+            recipe_names = set(row['recipe_name'] for row in cursor.fetchall())
+
+            # 커스텀 레시피 이름
+            cursor.execute("SELECT custom_recipe_name FROM custom_recipe")
+            custom_names = set(row['custom_recipe_name'] for row in cursor.fetchall())
+
+            return recipe_names.union(custom_names)
     finally:
         conn.close()
+
 
 def get_all_main_ingredients() -> set[str]:
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
+            # 표준 레시피 재료
             cursor.execute("SELECT DISTINCT main_ingredient FROM recipe")
-            return set(row['main_ingredient'] for row in cursor.fetchall())
+            ingredients = set(row['main_ingredient'] for row in cursor.fetchall())
+
+            # 커스텀 레시피 재료
+            cursor.execute("SELECT DISTINCT custom_main_ingredient FROM custom_recipe")
+            custom_ingredients = set(row['custom_main_ingredient'] for row in cursor.fetchall())
+
+            return ingredients.union(custom_ingredients)
     finally:
         conn.close()
 
@@ -38,8 +53,8 @@ def get_recommendations_by_nouns(nouns: list[str]) -> dict:
     custom_recipe_result = []
 
     if matched_recipes:
-        standard_recipe_result = get_recipe_by_name(matched_recipes)
-        custom_recipe_result = get_custom_recipes_by_main_ingredients(matched_recipes)
+        standard_recipe_result = get_recipes_by_name(matched_recipes)
+        custom_recipe_result = get_custom_recipes_by_name(matched_recipes)
     elif matched_ingredients:
         standard_recipe_result = get_recipes_by_main_ingredients(matched_ingredients)
         custom_recipe_result = get_custom_recipes_by_main_ingredients(matched_ingredients)
@@ -83,7 +98,6 @@ async def handle_stt_stream(websocket: WebSocket):
             for result in response.results:
                 if result.is_final:
                     transcript = result.alternatives[0].transcript
-                    await websocket.send_text(transcript)
 
                     nouns = mecab.nouns(transcript)
                     recommendations = get_recommendations_by_nouns(nouns)
