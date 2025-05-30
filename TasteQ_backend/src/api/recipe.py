@@ -39,6 +39,14 @@ def search_recipes_by_user_fridge(user_id: int):
     return recipes
 
 
+@router.get("/recipes/by-recipe-name/{recipe_name}", response_model=RecipeResponse)
+def get_recipe(recipe_name: str):
+    recipe = recipe_service.get_recipe_by_name(recipe_name)
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+    return recipe
+
+
 @router.get("/recipes/{recipe_id}", response_model=RecipeResponse)
 def get_recipe(recipe_id: int):
     recipe = recipe_service.get_recipe_by_id(recipe_id)

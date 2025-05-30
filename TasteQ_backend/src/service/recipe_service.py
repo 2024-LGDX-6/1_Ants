@@ -27,6 +27,21 @@ def get_recipe_by_id(recipe_id: int):
     finally:
         conn.close()
 
+def get_recipe_by_name(recipe_name: str):
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            sql = """
+                SELECT recipe_id, recipe_name, cook_time_min, recipe_link, main_ingredient
+                FROM recipe
+                WHERE recipe_name = %s
+            """
+            cursor.execute(sql, (recipe_name,))
+            return cursor.fetchone()
+    finally:
+        conn.close()
+
+
 def get_recipes_by_main_ingredients(ingredients: list[str]):
     conn = get_connection()
     try:
