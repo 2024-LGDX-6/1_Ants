@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:taste_q/controllers/user_fridge_controller.dart';
 import 'package:taste_q/views/fridge_front_appbar.dart';
 import 'package:taste_q/screens/tasteq_main_screen.dart';
 import 'package:taste_q/screens/ingredient_screen.dart';
@@ -37,11 +39,14 @@ class _FridgeMainScreenState extends State<FridgeMainScreen> with WidgetsBinding
   }
   @override
   Widget build(BuildContext context) {
+    final controller = UserFridgeController();
+    final int userId = 1;
+
     return Scaffold(
       appBar: const FridgeFrontAppbar(),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -53,14 +58,14 @@ class _FridgeMainScreenState extends State<FridgeMainScreen> with WidgetsBinding
                 fit: BoxFit.contain, // 비율 유지
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: EdgeInsets.symmetric(horizontal: 8.h),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: EdgeInsets.symmetric(horizontal: 12.h, vertical: 6.w),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF2F2F2),
-                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Row(
                   children: [
@@ -80,7 +85,11 @@ class _FridgeMainScreenState extends State<FridgeMainScreen> with WidgetsBinding
                     if (_showCheckmark)
                       const Padding(
                         padding: EdgeInsets.only(right: 8),
-                        child: Icon(Icons.check_circle, color: Colors.green, size: 20),
+                        child: Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 20
+                        ),
                       ),
                     TextButton(
                       onPressed: _handleInput,
@@ -92,24 +101,31 @@ class _FridgeMainScreenState extends State<FridgeMainScreen> with WidgetsBinding
             ),
             const SizedBox(height: 12),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: EdgeInsets.symmetric(horizontal: 8.h),
               child: Row(
                 children: [
                   Expanded(
                     child: Container(
                       height: 48,
-                      margin: const EdgeInsets.only(right: 8),
+                      margin: EdgeInsets.only(right: 8),
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const IngredientScreen()),
+                            MaterialPageRoute(
+                                builder: (context) => IngredientScreen(
+                                  userId: userId,
+                                  controller: controller,
+                                ),
+                            ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFEFEFEF),
+                          backgroundColor: Colors.grey[100],
                           foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.r)
+                          ),
                           elevation: 0,
                         ),
                         child: const Text('재료 보기'),
@@ -119,18 +135,20 @@ class _FridgeMainScreenState extends State<FridgeMainScreen> with WidgetsBinding
                   Expanded(
                     child: Container(
                       height: 48,
-                      margin: const EdgeInsets.only(left: 8),
+                      margin: EdgeInsets.only(left: 8),
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const TasteqMainScreen()),
+                            MaterialPageRoute(builder: (context) => TasteqMainScreen()),
                           );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange,
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r)
+                          ),
                           elevation: 0,
                         ),
                         child: const Text('빠른 요리'),
@@ -146,51 +164,30 @@ class _FridgeMainScreenState extends State<FridgeMainScreen> with WidgetsBinding
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-    );
-  }
-
-  Widget _buildImageCard(String imagePath, String label) {
-    return Container(
-      margin: const EdgeInsets.only(right: 12),
-      width: 100,
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.asset(imagePath, width: 100, height: 70, fit: BoxFit.cover),
-          ),
-          const SizedBox(height: 4),
-          Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildButton(IconData icon, String label) {
-    return ElevatedButton.icon(
-      onPressed: () {},
-      icon: Icon(icon, size: 16, color: Colors.black),
-      label: Text(label, style: const TextStyle(color: Colors.black)),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFEFEFEF),
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-  void _handleInput() {
+  // controller로 create 메소드 호출
+  void _handleInput() async {
     final input = _textController.text;
     if (input.isNotEmpty) {
       print('입력된 재료: $input');
       _textController.clear();
-      _sendInputToBackend(input);
       setState(() {
         _showCheckmark = true;
       });
+
+      // 컨트롤러의 POST 메소드 호출
+      final controller = UserFridgeController();
+      final int deviceId = 3; // 임의의 디바이스 ID 지정
+      try {
+        await controller.createUserFridge(deviceId, input);
+        print('재료 추가 성공');
+      } catch (e) {
+        print('재료 추가 실패: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('재료 추가 실패')),
+        );
+      }
+
+      // 체크마크 1초 표시 후 해제
       Future.delayed(const Duration(seconds: 1), () {
         setState(() {
           _showCheckmark = false;
@@ -198,24 +195,6 @@ class _FridgeMainScreenState extends State<FridgeMainScreen> with WidgetsBinding
       });
     }
   }
-
-  // [백엔드 연동 준비 함수]
-  // 실제 백엔드 API에 연결하려면 http 패키지를 사용하고, 아래 코드에 URL과 전송 방식 등을 설정해야 합니다.
-  // 예시: http.post(Uri.parse('https://your-backend.com/input'), body: {'ingredient': input})
-  void _sendInputToBackend(String input) {
-    print('백엔드로 전송할 입력값: $input');
-
-    // TODO: 여기에 실제 백엔드 전송 로직 추가
-    // 예시:
-    // final response = await http.post(
-    //   Uri.parse('https://your-backend-endpoint.com/api/ingredients'),
-    //   body: {'ingredient': input},
-    // );
-    //
-    // if (response.statusCode == 200) {
-    //   print('전송 성공!');
-    // } else {
-    //   print('전송 실패: ${response.statusCode}');
-    // }
-  }
 }
+
+

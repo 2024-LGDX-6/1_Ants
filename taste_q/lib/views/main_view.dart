@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:taste_q/controllers/dto/main_data_dto.dart';
 import 'package:taste_q/controllers/main_controller.dart';
 import 'package:taste_q/views/safe_images.dart';
 import 'section_recommended.dart';

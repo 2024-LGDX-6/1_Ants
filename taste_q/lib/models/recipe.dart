@@ -6,6 +6,7 @@ class Recipe {
   final String recipeImageUrl;
   final int cookTimeMin;
   final String recipeLink;
+  final String recipeIngredient;
 
   Recipe({
     required this.recipeId,
@@ -13,6 +14,7 @@ class Recipe {
     required this.recipeImageUrl,
     required this.cookTimeMin,
     required this.recipeLink,
+    required this.recipeIngredient,
   });
 
 }

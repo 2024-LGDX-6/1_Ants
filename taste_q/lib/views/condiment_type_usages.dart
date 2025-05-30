@@ -31,9 +31,9 @@ class CondimentTypeUsages extends StatelessWidget {
     final modifiedAmounts = amounts.map((originalAmount) {
       switch (mode) {
         case RecipeMode.wellness:
-          return originalAmount - (originalAmount * 0.1); // 웰빙 모드: 1/10
+          return originalAmount - (originalAmount * 0.1); // 웰빙 모드: 1/10 빼기
         case RecipeMode.gourmet:
-          return originalAmount + (originalAmount * 0.1); // 미식 모드: 10배
+          return originalAmount + (originalAmount * 0.1); // 미식 모드: 1/10 추가
         default:
           return originalAmount; // 표준 모드: 그대로
       }

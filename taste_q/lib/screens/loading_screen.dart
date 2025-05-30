@@ -4,10 +4,27 @@ import 'package:taste_q/screens/final_ready_screen.dart';
 import 'package:taste_q/views/front_appbar.dart';
 
 class LoadingScreen extends StatefulWidget {
-  const LoadingScreen({super.key});
+  final String recipeImageUrl;
+  final String recipeName;
+  final int recipeId;
+  final List<String> seasoningName;
+  final List<double> amounts;
+  final String recipeLink;
+
+  const LoadingScreen({
+    super.key,
+    required this.recipeImageUrl,
+    required this.recipeName,
+    required this.recipeId,
+    required this.seasoningName,
+    required this.amounts,
+    required this.recipeLink,
+  });
 
   @override
-  State<LoadingScreen> createState() => _LoadingScreenState();
+  State<LoadingScreen> createState() => _LoadingScreenState(
+
+  );
 }
 
 class _LoadingScreenState extends State<LoadingScreen>
@@ -62,7 +79,16 @@ class _LoadingScreenState extends State<LoadingScreen>
     await Future.delayed(const Duration(milliseconds: 1500)); // 1.5초 대기 후 화면 전환
     if (mounted) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const FinalReadyScreen()),
+        MaterialPageRoute(
+          builder: (_) => FinalReadyScreen(
+            recipeId: widget.recipeId,
+            recipeImageUrl: widget.recipeImageUrl,
+            recipeName: widget.recipeName,
+            seasoningName: widget.seasoningName,
+            amounts: widget.amounts,
+            recipeLink: widget.recipeLink,
+          ),
+        ),
       );
     }
   }
