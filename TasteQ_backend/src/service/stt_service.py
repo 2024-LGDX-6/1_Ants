@@ -95,9 +95,17 @@ async def handle_stt_stream(websocket: WebSocket):
     try:
         responses = client.streaming_recognize(config=streaming_config, requests=request_gen())
         for response in responses:
+            transcript = result.alternatives[0].transcript
+
+            # 🧠 STEP 3: interim 결과 전송
+            await websocket.send_text(json.dumps({
+                "type": "interim",
+                "text": transcript
+            }))
+
+
             for result in response.results:
                 if result.is_final:
-                    transcript = result.alternatives[0].transcript
 
                     nouns = mecab.nouns(transcript)
                     recommendations = get_recommendations_by_nouns(nouns)
