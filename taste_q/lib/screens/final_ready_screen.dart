@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taste_q/screens/feedback_screen.dart';
 import 'package:taste_q/views/final_ready_appbar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -119,8 +120,11 @@ class FinalReadyScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const FeedbackScreen(),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[300],

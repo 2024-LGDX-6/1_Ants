@@ -19,7 +19,7 @@ class IngredientScreen extends StatefulWidget {
 
 // 냉장고 재료 리스트뷰 타일 출력
 class _IngredientScreenState extends State<IngredientScreen> {
-  List<UserFridgeDataDTO> _fridgeData = [];
+  late Future<List<UserFridgeDataDTO>> _futureFridgeData;
 
   @override
   void initState() {
@@ -27,37 +27,20 @@ class _IngredientScreenState extends State<IngredientScreen> {
     _loadData();
   }
 
-  Future<void> _loadData() async {
-    try {
-      final data = await widget.controller.getFridgeDataByUser(widget.userId, 3);
-      setState(() {
-        _fridgeData = data;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('데이터 로드 실패: $e')),
-      );
-    }
+  void _loadData() {
+    _futureFridgeData = widget.controller.getFridgeDataByUser(widget.userId, 3);
   }
 
-  Future<void> _deleteItem(UserFridgeDataDTO item) async {
-    setState(() {
-      _fridgeData.remove(item); // UI 즉시 갱신
-    });
+  Future<void> _deleteItem(String fridgeIngredient) async {
     try {
-      await widget.controller.deleteFridgeIngredient(
-          item.deviceId, item.fridgeIngredients);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${item.fridgeIngredients} 삭제 완료')),
-      );
-    } catch (e) {
-      // 실패 시 UI 복구
+      await widget.controller.deleteFridgeIngredient(3, fridgeIngredient);
       setState(() {
-        _fridgeData.add(item);
+        _loadData(); // 삭제 후 데이터 다시 로드
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: $e')),
-      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('삭제 실패: $e')));
     }
   }
 
@@ -66,25 +49,38 @@ class _IngredientScreenState extends State<IngredientScreen> {
     return Scaffold(
       appBar: const IngredientAppBar(),
       backgroundColor: Colors.white,
-      body: _fridgeData.isEmpty
-          ? const Center(child: Text('냉장고 데이터가 없습니다.'))
-          : ListView.builder(
-        padding: EdgeInsets.all(16.h),
-        itemCount: _fridgeData.length,
-        itemBuilder: (context, index) {
-          final item = _fridgeData[index];
-          return Card(
-            color: Colors.grey[100],
-            elevation: 0.5,
-            margin: EdgeInsets.symmetric(vertical: 8.r),
-            child: ListTile(
-              title: Text(item.fridgeIngredients),
-              trailing: IconButton(
-                icon: const Icon(Icons.close, color: Colors.red),
-                onPressed: () => _deleteItem(item),
-              ),
-            ),
-          );
+      body: FutureBuilder<List<UserFridgeDataDTO>>(
+        future: _futureFridgeData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('에러 발생: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('냉장고 데이터가 없습니다.'));
+          } else {
+            final fridgeData = snapshot.data!;
+
+            return ListView.builder(
+              padding: EdgeInsets.all(16.h),
+              itemCount: fridgeData.length,
+              itemBuilder: (context, index) {
+                final item = fridgeData[index];
+                return Card(
+                  color: Colors.white,
+                  elevation: 0.5,
+                  margin: EdgeInsets.symmetric(vertical: 8.r),
+                  child: ListTile(
+                    title: Text(item.fridgeIngredients),
+                    trailing: IconButton(
+                      icon: Icon(Icons.close, color: Colors.red),
+                      onPressed: () => _deleteItem(item.fridgeIngredients),
+                    ),
+                  ),
+                );
+              },
+            );
+          }
         },
       ),
     );
