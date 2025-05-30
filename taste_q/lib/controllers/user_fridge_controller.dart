@@ -80,20 +80,26 @@ class UserFridgeController {
     }
   }
 
-  // 데이터 삭제(delete) 로직
-  Future<void> deleteFridgeIngredient(
-    int deviceId,
-    String fridgeIngredient,
-  ) async {
-    final response = await http.delete(
-      Uri.parse(
-        '$baseUrl/user-fridge?device_id=$deviceId&ingredient=${
-            Uri.encodeComponent(fridgeIngredient)}',
-      ),
-      headers: {'Content-Type': 'application/json'},
-    );
-    if (response.statusCode != 200) {
-      throw Exception('삭제 실패');
+  // 데이터 삭제(delete) 로직: http.Request() 활용
+  Future<void> deleteFridgeIngredient(int deviceId, String ingredient) async {
+    final url = Uri.parse("$baseUrl/user-fridge");
+
+    final request = http.Request("DELETE", url)
+      ..headers.addAll({
+        "Content-Type": "application/json",
+      })
+      ..body = jsonEncode({
+        "device_id": deviceId,
+        "fridge_Ingredients": ingredient,
+      });
+
+    final response = await request.send();
+    final responseBody = await response.stream.bytesToString();
+
+    if (response.statusCode == 200) {
+      print("삭제 성공: $responseBody");
+    } else {
+      print("삭제 실패 (${response.statusCode}): $responseBody");
     }
   }
 
