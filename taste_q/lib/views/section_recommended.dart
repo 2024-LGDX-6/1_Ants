@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:taste_q/models/route_entry_type.dart';
 import 'package:taste_q/screens/recipe_data_screen.dart';
 import 'package:taste_q/views/safe_images.dart';
 
@@ -42,7 +43,9 @@ class SectionRecommended extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => RecipeDataScreen(
-                              recipeId: recipeIds[index]),
+                            routeEntryType: RouteEntryType.anotherDefault,
+                            recipeId: recipeIds[index],
+                          ),
                         ),
                       );
                     },

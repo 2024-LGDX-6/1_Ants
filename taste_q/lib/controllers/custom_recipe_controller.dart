@@ -12,9 +12,9 @@ class CustomRecipeController {
 
   static const String baseUrl = "http://192.168.219.130:8000";
 
-  // 전체 개인 레시피 목록 불러오기
-  Future<CustomRecipeDataDTO> getAllCustomRecipes() async {
-    final response = await http.get(Uri.parse('$baseUrl/recipes')); // FastAPI 엔드포인트
+  // 전체 개인 레시피 목록 불러오기 - getAllCustomRecipes()
+  Future<CustomRecipeDataDTO> getAllRecipes() async {
+    final response = await http.get(Uri.parse('$baseUrl/custom-recipes')); // FastAPI 엔드포인트
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
@@ -25,12 +25,12 @@ class CustomRecipeController {
     }
   }
 
-  // 개인 레시피 데이터 불러오기
-  Future<CustomRecipeDataDetailDto> getCustomRecipeData(
+  // 개인 레시피 데이터 불러오기 - getCustomRecipeData()
+  Future<CustomRecipeDataDetailDto> getRecipeData(
       int recipeId, BuildContext context) async {
     // 1. 개인 레시피 기본 정보 요청
     final recipeResponse = await http.get(Uri.parse(
-        '$baseUrl/recipes/$recipeId'));
+        '$baseUrl/custom-recipes/$recipeId'));
     if (recipeResponse.statusCode != 200) {
       throw Exception('레시피 정보를 불러올 수 없습니다.');
     }
@@ -38,7 +38,7 @@ class CustomRecipeController {
 
     // 2. 개인 레시피 시즈닝 상세정보 요청
     final detailResponse = await http.get(Uri.parse(
-        '$baseUrl/recipes/$recipeId/seasoning-details'));
+        '$baseUrl/custom-recipes/$recipeId/seasoning-details'));
     if (detailResponse.statusCode != 200) {
       throw Exception('레시피 조미료 정보를 불러올 수 없습니다.');
     }
@@ -63,11 +63,12 @@ class CustomRecipeController {
       }
     }).toList();
 
+
     // 6. RecipeDataDTO 반환 (amounts를 변환값으로 교체)
     return CustomRecipeDataDetailDto(
-      customRecipeId: recipeJson['custom_recipe_id'],
-      customRecipeName: recipeJson['custom_recipe_name'],
-      customRecipeImageUrl: imagePath,
+      recipeId: recipeJson['custom_recipe_id'],
+      recipeName: recipeJson['custom_recipe_name'],
+      recipeImageUrl: imagePath,
       seasoningNames: detailJson.map((e) => e['seasoning_name'] as String).toList(),
       amounts: modifiedAmounts,
     );

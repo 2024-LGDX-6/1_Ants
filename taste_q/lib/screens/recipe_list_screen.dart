@@ -1,26 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:taste_q/controllers/dto/main_data_dto.dart';
+import 'package:taste_q/controllers/custom_recipe_controller.dart';
 import 'package:taste_q/controllers/main_controller.dart';
+import 'package:taste_q/models/route_entry_type.dart';
 import 'package:taste_q/screens/recipe_data_screen.dart';
 import 'package:taste_q/views/front_appbar.dart';
 
 class RecipeListScreen extends StatefulWidget {
-  const RecipeListScreen({super.key});
+  final RouteEntryType routeEntryType;
+
+  const RecipeListScreen({super.key, required this.routeEntryType});
 
   @override
   _RecipeListScreenState createState() => _RecipeListScreenState();
 }
 
 class _RecipeListScreenState extends State<RecipeListScreen> {
-  late Future<MainDataDTO> _futureRecipes;
+  late Future<dynamic> _futureRecipes; // 반환 타입 dynamic으로 통일
   late TextEditingController _searchController;
   String _searchText = '';
+
+  late dynamic controller;
 
   @override
   void initState() {
     super.initState();
-    final controller = MainController();
+    switch (widget.routeEntryType) {
+      case RouteEntryType.anotherDefault:
+        controller = MainController();
+        break;
+      case RouteEntryType.customRecipeList:
+        controller = CustomRecipeController();
+        break;
+    }
     _futureRecipes = controller.getAllRecipes();
     _searchController = TextEditingController();
     _searchController.addListener(() {
@@ -38,12 +50,13 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // build는 Future<Widget>이 아니라 Widget을 반환해야 함
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: FrontAppBar(),
       body: Column(
         children: [
-          // 검색창
+          // 레시피 검색창
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             child: TextField(
@@ -61,23 +74,24 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
               ),
             ),
           ),
+
           // FutureBuilder로 기존 리스트 출력
           Expanded(
-            child: FutureBuilder<MainDataDTO>(
-              future: _futureRecipes,
+            child: FutureBuilder<dynamic>( // dynamic으로 변경
+              future: _futureRecipes, // await 제거
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Center(child: Text('에러: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.recipeIds.isEmpty) {
+                } else if (!snapshot.hasData || snapshot.data.recipeIds.isEmpty) {
                   return const Center(child: Text('레시피가 없습니다.'));
                 } else {
                   final recipes = snapshot.data!;
                   final filteredIndices = List.generate(recipes.recipeNames.length, (index) => index)
                       .where((i) =>
-                          recipes.recipeNames[i].toLowerCase().contains(_searchText) ||
-                          recipes.recipeIngredients[i].toLowerCase().contains(_searchText))
+                  recipes.recipeNames[i].toLowerCase().contains(_searchText) ||
+                      recipes.recipeIngredients[i].toLowerCase().contains(_searchText))
                       .toList();
 
                   return ListView.builder(
@@ -96,7 +110,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                               height: 50.h,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(Icons.image_not_supported),
+                              const Icon(Icons.image_not_supported),
                             ),
                           ),
                           title: Text(
@@ -109,10 +123,12 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                             color: Colors.orangeAccent,
                           ),
                           onTap: () {
+                            // print(recipes.recipeIds[index]);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => RecipeDataScreen(
+                                  routeEntryType: widget.routeEntryType,
                                   recipeId: recipes.recipeIds[index],
                                 ),
                               ),
@@ -130,4 +146,5 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
       ),
     );
   }
+
 }

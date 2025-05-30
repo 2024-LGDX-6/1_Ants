@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:taste_q/models/route_entry_type.dart';
 import 'package:taste_q/screens/recipe_list_screen.dart';
 
 // 마이 레시피, 메뉴 찾기 버튼
@@ -24,7 +25,9 @@ class SectionButtons extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => RecipeListScreen(),
+                    builder: (context) => RecipeListScreen(
+                        routeEntryType: RouteEntryType.customRecipeList
+                    ),
                 ),
               );
             },
@@ -56,7 +59,9 @@ class SectionButtons extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => RecipeListScreen(),
+                  builder: (context) => RecipeListScreen(
+                      routeEntryType: RouteEntryType.anotherDefault
+                  ),
                 ),
               );
             },
