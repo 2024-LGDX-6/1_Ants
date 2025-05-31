@@ -47,26 +47,25 @@ class CustomRecipeController {
     final imagePath = customRecipeImageMapping[recipeId] ?? 'default.jpg';
 
     // 4. 현재 모드와 인분 수 가져오기 (Provider)
-    final mode = Provider.of<RecipeProvider>(context, listen: false).mode;
-    final multiplier = Provider.of<RecipeProvider>(context, listen: false).multiplier;
+    final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
+    final mode = recipeProvider.mode;
+    final multiplier = recipeProvider.multiplier;
 
     // 5. 모드와 인분에 따른 amounts 연산 후 변환
-    List<double> modifiedAmounts = detailJson.map((e) {
+    final modifiedAmounts = detailJson.map((e) {
       double originalAmount = (e['amount'] as num).toDouble();
-      double modifiedAmount;
       switch (mode) {
         case RecipeMode.wellness:
-          modifiedAmount = originalAmount - (originalAmount * 0.1); // 웰빙모드: 1/10 빼기
+          originalAmount -= originalAmount * 0.1;  // 웰빙모드
           break;
         case RecipeMode.gourmet:
-          modifiedAmount = originalAmount + (originalAmount * 0.1); // 미식모드: 1/10 추가
+          originalAmount += originalAmount * 0.1;  // 미식모드
           break;
-        case RecipeMode.standard:
-          modifiedAmount = originalAmount; // 표준모드: 그대로
+        case RecipeMode.standard: // 표준모드: 그대로
           break;
       }
-      // multiplier(인분 수) 정수값 곱셈 연산 추가
-      return modifiedAmount * multiplier;
+      originalAmount *= multiplier;  // multiplier 곱셈은 마지막에
+      return originalAmount;
     }).toList();
 
 

@@ -6,6 +6,7 @@ class RecipeDataDTO {
   final List<String> seasoningNames;
   final List<double> amounts;
   final String recipeLink;
+  final int recipeType = 0;
 
   RecipeDataDTO({
     required this.recipeId,

@@ -29,7 +29,7 @@ class RecipeDataView extends StatefulWidget {
 class _RecipeDataViewState extends State<RecipeDataView> {
   dynamic controller;
   dynamic dto;
-  String? errorMessage;  // 오류 메시지 상태 추가
+  String? errorMessage;
 
   @override
   void initState() {
@@ -42,22 +42,33 @@ class _RecipeDataViewState extends State<RecipeDataView> {
         controller = CustomRecipeController();
         break;
     }
-    _loadData();
+    _loadData();  // 최초 데이터 불러오기
   }
 
   Future<void> _loadData() async {
     try {
       final data = await controller.getRecipeData(widget.recipeId, context);
-      setState(() {
-        dto = data;
-        errorMessage = null;  // 정상인 경우 오류 메시지 초기화
-      });
+      if (mounted) {
+        setState(() {
+          dto = data;
+          errorMessage = null;
+        });
+      }
     } catch (e) {
-      print('데이터 불러오기 오류: $e');  // 에러 로그 출력
-      setState(() {
-        errorMessage = '데이터를 불러오는 중 오류가 발생했습니다.\n오류: $e';
-      });
+      if (mounted) {
+        setState(() {
+          errorMessage = '데이터를 불러오는 중 오류가 발생했습니다.\n오류: $e';
+        });
+      }
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Provider 변경 시 데이터 갱신
+    context.watch<RecipeProvider>();
+    _loadData();  // 로딩 없이 dto만 갱신
   }
 
   @override
@@ -71,17 +82,25 @@ class _RecipeDataViewState extends State<RecipeDataView> {
     if (errorMessage != null) {
       return Center(child: Text(errorMessage!, textAlign: TextAlign.center));
     }
+
     if (dto == null) {
-      return const Center(child: CircularProgressIndicator());  // 최초 로딩
+      return const Center(child: CircularProgressIndicator());
     }
+
     final int recipeId = dto.recipeId;
     final String recipeName = dto.recipeName;
     final String recipeImageUrl = dto.recipeImageUrl;
     final List<String> seasoningNames = dto.seasoningNames;
     final List<double> amounts = dto.amounts;
     final String recipeLink = dto.recipeLink ?? '';
+    final int recipeType = dto.recipeType;
+
+    List<double> roundedAmounts = amounts.map( // 소수점 1자리 수로 수정
+      (e) => double.parse(e.toStringAsFixed(1))
+    ).toList();
 
     return SingleChildScrollView(
+
       padding: EdgeInsets.all(8.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,13 +135,16 @@ class _RecipeDataViewState extends State<RecipeDataView> {
             recipeName: recipeName,
             recipeId: recipeId,
             seasoningName: seasoningNames,
-            amounts: amounts,
+            amounts: roundedAmounts,
             recipeLink: recipeLink,
+            recipeType: recipeType,
+            servings: context.watch<RecipeProvider>().multiplier,
+            cookingMode: context.watch<RecipeProvider>().modeIndex,
           ),
           SizedBox(height: 20.h),
           Opacity(
             opacity: (recipeLink != '') ? 1.0 : 0.5,
-            child: IgnorePointer( // 링크가 빈 문자열일 때 터치 비활성화
+            child: IgnorePointer(
               ignoring: recipeLink == '',
               child: RecipeLinkButton(recipeLink: recipeLink),
             ),

@@ -9,7 +9,7 @@ class RecipeProvider with ChangeNotifier {
   RecipeMode get mode => _mode;
 
   // 현재 모드 index (서버 전송용)
-  int get modeIndex => _mode.indexValue;
+  int get modeIndex => _mode.toInt();
 
   // 현재 모드의 라벨 (UI 표시용)
   String get modeLabel => modeLabels[_mode]!;
@@ -37,7 +37,7 @@ class RecipeProvider with ChangeNotifier {
 
   // 모드 변경 (index 값으로)
   void updateRecipeMode(int index) {
-    _mode = RecipeModeExtension.fromIndex(index);
+    _mode = RecipeModeExtension.fromInt(index);
     notifyListeners();
   }
 }

@@ -14,6 +14,9 @@ class LoadingScreen extends StatefulWidget {
   final List<String> seasoningName;
   final List<double> amounts;
   final String recipeLink;
+  final int recipeType;
+  final int servings;
+  final int cookingMode;
   final BluetoothDevice? connectedDevice;
   final BluetoothCharacteristic? txCharacteristic;
 
@@ -25,6 +28,9 @@ class LoadingScreen extends StatefulWidget {
     required this.seasoningName,
     required this.amounts,
     required this.recipeLink,
+    required this.recipeType,
+    required this.servings,
+    required this.cookingMode,
     this.connectedDevice,
     this.txCharacteristic,
   });
@@ -104,6 +110,9 @@ class _LoadingScreenState extends State<LoadingScreen>
             recipeName: widget.recipeName,
             seasoningName: widget.seasoningName,
             amounts: widget.amounts,
+            recipeType: widget.recipeType,
+            servings: widget.servings,
+            cookingMode: widget.cookingMode,
             recipeLink: widget.recipeLink,
           ),
         ),

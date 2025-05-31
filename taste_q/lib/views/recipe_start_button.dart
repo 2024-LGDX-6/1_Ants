@@ -10,6 +10,9 @@ class RecipeStartButton extends StatelessWidget {
   final List<String> seasoningName;
   final List<double> amounts;
   final String recipeLink;
+  final int recipeType;
+  final int servings;
+  final int cookingMode;
   final BluetoothDevice? connectedDevice;
   final BluetoothCharacteristic? txCharacteristic;
 
@@ -21,6 +24,9 @@ class RecipeStartButton extends StatelessWidget {
     required this.seasoningName,
     required this.amounts,
     required this.recipeLink,
+    required this.recipeType,
+    required this.servings,
+    required this.cookingMode,
     this.connectedDevice,
     this.txCharacteristic,
   });
@@ -30,7 +36,13 @@ class RecipeStartButton extends StatelessWidget {
     return Center(
       child: ElevatedButton(
         onPressed: () {
-          print({"$seasoningName 사용량 : ${amounts}g"});
+          print({
+            "레시피명 : $recipeName",
+            "$seasoningName 사용량 : ${amounts}g",
+            "레시피 유형 : $recipeType (0번: 일반용, 1번: 개인용)",
+            "레시피 모드 : $cookingMode (0번: 표준, 1번: 웰빙, 2번: 미식)",
+            "인원 수 : $servings인분",
+          });
           // 버튼 클릭 시 동작 정의
           Navigator.push(
             context,
@@ -42,6 +54,9 @@ class RecipeStartButton extends StatelessWidget {
                 seasoningName: seasoningName,
                 amounts: amounts,
                 recipeLink: recipeLink,
+                recipeType: recipeType,
+                servings: servings,
+                cookingMode: cookingMode,
                 connectedDevice: connectedDevice,
                 txCharacteristic: txCharacteristic,
               ),
