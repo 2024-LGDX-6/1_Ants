@@ -31,20 +31,25 @@ class RecipeController {
     // 3. 이미지 경로 매핑
     final imagePath = recipeImageMapping[recipeId] ?? 'default.jpg';
 
-    // 4. 현재 모드 가져오기 (Provider)
+    // 4. 현재 모드와 인분 수 가져오기 (Provider)
     final mode = Provider.of<RecipeProvider>(context, listen: false).mode;
+    final multiplier = Provider.of<RecipeProvider>(context, listen: false).multiplier;
 
-    // 5. 모드에 따른 amounts 연산 후 변환
-    List<double> modifiedAmounts = detailJson.map((e) {
+    // 5. 모드와 인분에 따른 amounts 연산 후 변환
+    final modifiedAmounts = detailJson.map((e) {
       double originalAmount = (e['amount'] as num).toDouble();
       switch (mode) {
         case RecipeMode.wellness:
-          return originalAmount - (originalAmount * 0.1); // 웰빙모드: 1/10 빼기
+          originalAmount -= originalAmount * 0.1;  // 웰빙모드
+          break;
         case RecipeMode.gourmet:
-          return originalAmount + (originalAmount * 0.1); // 미식모드: 1/10 추가
-        case RecipeMode.standard:
-        return originalAmount; // 표준모드: 그대로
+          originalAmount += originalAmount * 0.1;  // 미식모드
+          break;
+        case RecipeMode.standard: // 표준모드: 그대로
+          break;
       }
+      originalAmount *= multiplier;  // multiplier 곱셈은 마지막에
+      return originalAmount;
     }).toList();
 
     // 6. RecipeDataDTO 반환 (amounts를 변환값으로 교체)
@@ -58,14 +63,24 @@ class RecipeController {
     );
   }
 
-  // RecipeModeSelector, SettingView에서 사용될 provider 메소드
-  void updateMode(BuildContext context, RecipeMode newMode) {
-    // Provider에서 모드 설정
-    Provider.of<RecipeProvider>(context, listen: false).setMode(newMode);
+  // RecipeModeSelector, SettingView에서 사용될 provider 메소드 (mode + multiplier)
+  void updateModeAndMultiplier(BuildContext context, RecipeMode newMode, int newMultiplier) {
+    final provider = Provider.of<RecipeProvider>(context, listen: false);
+    provider.setMode(newMode);  // 모드 설정
+    provider.setMultiplier(newMultiplier);  // 인분 수(multiplier) 설정
   }
+
+  // RecipeModeSelector, SettingView에서 사용될 provider 메소드
+  // void updateMode(BuildContext context, RecipeMode newMode) {
+  //   // Provider에서 모드 설정
+  //   Provider.of<RecipeProvider>(context, listen: false).setMode(newMode);
 
   RecipeMode getCurrentMode(BuildContext context) {
     return Provider.of<RecipeProvider>(context, listen: false).mode;
+  }
+
+  int getCurrentMultiplier(BuildContext context) {
+    return Provider.of<RecipeProvider>(context, listen: false).multiplier;
   }
 
 }

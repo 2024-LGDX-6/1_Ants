@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:taste_q/screens/feedback_screen.dart';
+import 'package:taste_q/views/condiment_type_usages.dart';
 import 'package:taste_q/views/final_ready_appbar.dart';
 import 'package:taste_q/views/recipe_link_button.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:taste_q/views/safe_images.dart';
-import 'package:taste_q/views/condiment_type_usages.dart';
 
 class FinalReadyScreen extends StatelessWidget {
   final String recipeLink;
@@ -14,6 +13,9 @@ class FinalReadyScreen extends StatelessWidget {
   final String recipeName;
   final String recipeImageUrl;
   final int recipeId;
+  final int recipeType;
+  final int servings;
+  final int cookingMode;
 
   const FinalReadyScreen({
     super.key,
@@ -23,14 +25,17 @@ class FinalReadyScreen extends StatelessWidget {
     required this.recipeName,
     required this.recipeImageUrl,
     required this.recipeId,
+    required this.recipeType,
+    required this.servings,
+    required this.cookingMode,
   });
 
-  Future<void> _launchRecipeLink(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch $url';
-    }
-  }
+  // Future<void> _launchRecipeLink(String url) async {
+  //   final Uri uri = Uri.parse(url);
+  //   if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+  //     throw 'Could not launch $url';
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -78,9 +83,8 @@ class FinalReadyScreen extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: safeImage(
-                  "images/foods/${recipeImageUrl}",
-                  280.w,
-                  200.h,
+                  "images/foods/$recipeImageUrl",
+                  280.w, 200.h,
                 ),
               ),
             ),
@@ -99,7 +103,7 @@ class FinalReadyScreen extends StatelessWidget {
             CondimentTypeUsages(
               recipeId: recipeId,
               seasoningNames: seasoningName,
-              amounts: amounts,
+              amounts: amounts
             ),
             SizedBox(height: 18.h),
             // 레시피 보러가기 버튼
@@ -108,10 +112,10 @@ class FinalReadyScreen extends StatelessWidget {
               child: Opacity(
                 opacity: (recipeLink != '') ? 1.0 : 0.5, // null 또는 빈 문자열 처리
                 child: IgnorePointer(
-                  ignoring: recipeLink == '', // null 또는 빈 문자열일 때 터치 비활성화
+                  ignoring: recipeLink == '', // 빈 문자열일 때 터치 비활성화
                   child: RecipeLinkButton(
                     recipeLink: recipeLink,
-                  ), // null일 경우 빈 문자열 대체
+                  ),
                 ),
               ),
             ),

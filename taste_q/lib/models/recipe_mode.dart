@@ -10,11 +10,15 @@ enum RecipeMode {
 }
 
 extension RecipeModeExtension on RecipeMode {
-  // 서버로 전송할 때 enum -> int 변환
-  int get indexValue => index;
+  // 현재 RecipeMode를 int값 (0,1,2)로 변환
+  int toInt() {
+    return index; // enum의 index를 반환
+  }
 
-  // 서버에서 받은 int -> enum으로 변환
-  static RecipeMode fromIndex(int index) => RecipeMode.values[index];
+  // int (0,1,2)를 RecipeMode로 변환
+  static RecipeMode fromInt(int value) {
+    return RecipeMode.values[value];
+  }
 }
 
 // UI 표시에 사용할 라벨 맵

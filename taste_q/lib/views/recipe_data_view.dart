@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:taste_q/controllers/custom_recipe_controller.dart';
 import 'package:taste_q/controllers/recipe_controller.dart';
 import 'package:taste_q/models/route_entry_type.dart';
+import 'package:taste_q/providers/recipe_provider.dart';
+import 'package:taste_q/views/condiment_type_usages.dart';
+import 'package:taste_q/views/multiplier_input.dart';
 import 'package:taste_q/views/recipe_link_button.dart';
 import 'package:taste_q/views/recipe_mode_selector.dart';
 import 'package:taste_q/views/recipe_start_button.dart';
 import 'package:taste_q/views/safe_images.dart';
-import 'condiment_type_usages.dart';
 
 class RecipeDataView extends StatefulWidget {
   final RouteEntryType routeEntryType;
-  // final RecipeController controller;
   final int recipeId;
 
   const RecipeDataView({
     super.key,
     required this.routeEntryType,
-    // required this.controller,
     required this.recipeId,
   });
 
@@ -26,8 +27,9 @@ class RecipeDataView extends StatefulWidget {
 }
 
 class _RecipeDataViewState extends State<RecipeDataView> {
-  late Future<dynamic> _recipeFuture; // 타입을 dynamic으로 변경
-  late dynamic controller;
+  dynamic controller;
+  dynamic dto;
+  String? errorMessage;
 
   @override
   void initState() {
@@ -40,86 +42,115 @@ class _RecipeDataViewState extends State<RecipeDataView> {
         controller = CustomRecipeController();
         break;
     }
-    // Future를 initState에서 초기화 -> build() 재호출에도 Future 유지
-    _recipeFuture = controller.getRecipeData(widget.recipeId, context);
+    _loadData();  // 최초 데이터 불러오기
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final data = await controller.getRecipeData(widget.recipeId, context);
+      if (mounted) {
+        setState(() {
+          dto = data;
+          errorMessage = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          errorMessage = '데이터를 불러오는 중 오류가 발생했습니다.\n오류: $e';
+        });
+      }
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Provider 변경 시 데이터 갱신
+    context.watch<RecipeProvider>();
+    _loadData();  // 로딩 없이 dto만 갱신
+  }
+
+  @override
+  void dispose() {
+    context.read<RecipeProvider>().resetMultiplier();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<dynamic>( // FutureBuilder의 타입도 dynamic으로 변경
-      future: _recipeFuture,
-      builder: (context, snapshot) {
-        // print('Fetched data: ${snapshot.data}');
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('오류: ${snapshot.error}'));
-        } else if (!snapshot.hasData) {
-          return const Center(child: Text('레시피 정보를 불러올 수 없습니다.'));
-        } else {
-          final dto = snapshot.data!;
-          // recipeLink 안전 처리
-          String recipeLink = '';
-          try {
-            recipeLink = dto.recipeLink ?? '';
-          } catch (e) {
-            recipeLink = ''; // 레시피 링크 필드가 없을 땐 빈 문자열
-          }
-          final int recipeId = dto.recipeId;
-          final String recipeName = dto.recipeName;
-          final String recipeImageUrl = dto.recipeImageUrl;
-          final List<String> seasoningNames = dto.seasoningNames;
-          final List<double> amounts = dto.amounts;
+    if (errorMessage != null) {
+      return Center(child: Text(errorMessage!, textAlign: TextAlign.center));
+    }
 
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(8.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 40.h),
-                Center(
-                  child: safeImage("images/foods/$recipeImageUrl", 300.w, 200.h),
-                ),
-                SizedBox(height: 15.h),
-                Center(
-                  child: Text(
-                    recipeName,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 28.sp,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                RecipeModeSelector(), // Provider와 연결, build() 재호출과 무관
-                SizedBox(height: 28.h),
-                CondimentTypeUsages(
-                  recipeId: recipeId,
-                  seasoningNames: seasoningNames,
-                  amounts: amounts,
-                ),
-                SizedBox(height: 20.h),
-                RecipeStartButton(
-                  recipeImageUrl: recipeImageUrl,
-                  recipeName: recipeName,
-                  recipeId: recipeId,
-                  seasoningName: seasoningNames,
-                  amounts: amounts,
-                  recipeLink: recipeLink, // null일 경우 빈 문자열로 대체
-                ),
-                SizedBox(height: 20.h),
-                Opacity(
-                  opacity: (recipeLink != '') ? 1.0 : 0.5, // null 또는 빈 문자열 처리
-                  child: IgnorePointer(
-                    ignoring: recipeLink == '', // null 또는 빈 문자열일 때 터치 비활성화
-                    child: RecipeLinkButton(recipeLink: recipeLink), // null일 경우 빈 문자열 대체
-                  ),
-                ),
-              ],
+    if (dto == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final int recipeId = dto.recipeId;
+    final String recipeName = dto.recipeName;
+    final String recipeImageUrl = dto.recipeImageUrl;
+    final List<String> seasoningNames = dto.seasoningNames;
+    final List<double> amounts = dto.amounts;
+    final String recipeLink = dto.recipeLink ?? '';
+    final int recipeType = dto.recipeType;
+
+    List<double> roundedAmounts = amounts.map( // 소수점 1자리 수로 수정
+      (e) => double.parse(e.toStringAsFixed(1))
+    ).toList();
+
+    return SingleChildScrollView(
+
+      padding: EdgeInsets.all(8.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 40.h),
+          Center(child: safeImage("images/foods/$recipeImageUrl", 300.w, 200.h)),
+          SizedBox(height: 15.h),
+          Center(
+            child: Text(
+              recipeName,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.sp),
             ),
-          );
-        }
-      },
+          ),
+          SizedBox(height: 16.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              RecipeModeSelector(),
+              SizedBox(width: 15.w),
+              MultiplierInput(onSubmitted: _loadData),
+            ],
+          ),
+          SizedBox(height: 28.h),
+          CondimentTypeUsages(
+            recipeId: recipeId,
+            seasoningNames: seasoningNames,
+            amounts: amounts,
+          ),
+          SizedBox(height: 20.h),
+          RecipeStartButton(
+            recipeImageUrl: recipeImageUrl,
+            recipeName: recipeName,
+            recipeId: recipeId,
+            seasoningName: seasoningNames,
+            amounts: roundedAmounts,
+            recipeLink: recipeLink,
+            recipeType: recipeType,
+            servings: context.watch<RecipeProvider>().multiplier,
+            cookingMode: context.watch<RecipeProvider>().modeIndex,
+          ),
+          SizedBox(height: 20.h),
+          Opacity(
+            opacity: (recipeLink != '') ? 1.0 : 0.5,
+            child: IgnorePointer(
+              ignoring: recipeLink == '',
+              child: RecipeLinkButton(recipeLink: recipeLink),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

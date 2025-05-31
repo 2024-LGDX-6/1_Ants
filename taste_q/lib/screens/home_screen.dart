@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taste_q/screens/ble_scan_page_screen.dart';
 import 'package:taste_q/screens/tasteq_main_screen.dart';
 import 'package:taste_q/screens/fridge_main_screen.dart'; // 추가
 import 'package:taste_q/views/front_appbar.dart'; // 기존 홈바 import 추가
@@ -157,6 +158,12 @@ class HomeContent extends StatelessWidget {
                             if (homeScreenState != null) {
                               homeScreenState._wasBluetoothSettingsOpened = true;
                             }
+
+                            // 앱 내에서 BLE 스캔 페이지로 이동
+                            _navigateToBleScanPage(context);
+
+                            // 기존 안드로이드 설정창 이동 로직은 주석 처리
+                            /*
                             if (Platform.isAndroid) {
                               final intent = AndroidIntent(
                                 action: 'android.settings.BLUETOOTH_SETTINGS',
@@ -168,6 +175,7 @@ class HomeContent extends StatelessWidget {
                                 print('블루투스 설정 열기 실패: $e');
                               }
                             }
+                            */
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF7FCEFF),
@@ -707,3 +715,12 @@ class _AnimatedPopupState extends State<_AnimatedPopup>
     );
   }
 }
+  // BLE 스캔 및 연결 페이지로 이동하는 함수
+  void _navigateToBleScanPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const BleScanPage(), // 추후 생성될 BLE 스캔 페이지
+      ),
+    );
+  }
