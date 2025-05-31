@@ -86,8 +86,8 @@ class _LoadingScreenState extends State<LoadingScreen>
     try {
       if (ble.txCharacteristic != null) {
         debugPrint("TX characteristic UUID: ${ble.txCharacteristic?.uuid}");
-        await ble.txCharacteristic!.write(utf8.encode("M1_ON"), withoutResponse: false);
-        debugPrint("BLE write command sent: M1_ON");
+        await ble.txCharacteristic!.write(utf8.encode("M_ON"), withoutResponse: false);
+        debugPrint("BLE write command sent: M_ON");
       } else {
         debugPrint("BLE 명령어 전송 생략됨 (txCharacteristic이 null)");
       }
