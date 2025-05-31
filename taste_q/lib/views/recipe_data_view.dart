@@ -71,6 +71,7 @@ class _RecipeDataViewState extends State<RecipeDataView> {
           final List<String> seasoningNames = dto.seasoningNames;
           final List<double> amounts = dto.amounts;
 
+
           return SingleChildScrollView(
             padding: EdgeInsets.all(8.w),
             child: Column(
@@ -106,6 +107,7 @@ class _RecipeDataViewState extends State<RecipeDataView> {
                   seasoningName: seasoningNames,
                   amounts: amounts,
                   recipeLink: recipeLink, // null일 경우 빈 문자열로 대체
+                  // connectedDevice와 txCharacteristic은 이제 선택적 nullable 파라미터이므로 전달하지 않아도 됩니다.
                 ),
                 SizedBox(height: 20.h),
                 Opacity(
