@@ -33,6 +33,8 @@ class RecipeStartButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    DateTime dateTime = DateTime.now();
+
     return Center(
       child: ElevatedButton(
         onPressed: () {
@@ -42,6 +44,7 @@ class RecipeStartButton extends StatelessWidget {
             "레시피 유형 : $recipeType (0번: 일반용, 1번: 개인용)",
             "레시피 모드 : $cookingMode (0번: 표준, 1번: 웰빙, 2번: 미식)",
             "인원 수 : $servings인분",
+            "시작 시간 : $dateTime"
           });
           // 버튼 클릭 시 동작 정의
           Navigator.push(

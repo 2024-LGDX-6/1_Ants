@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:taste_q/controllers/recipe_controller.dart';
 import 'package:taste_q/models/route_entry_type.dart';
 import 'package:taste_q/views/front_appbar.dart';
 import 'package:taste_q/views/recipe_data_view.dart';
