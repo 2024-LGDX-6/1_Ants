@@ -36,6 +36,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   flutter_blue_plus: ^1.35.5
   android_intent_plus: ^5.3.0
+  permission_handler: ^11.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

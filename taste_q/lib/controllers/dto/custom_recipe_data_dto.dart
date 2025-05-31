@@ -56,6 +56,7 @@ class CustomRecipeDataDetailDto {
   final String recipeImageUrl; // customRecipeImageUrl
   final List<String> seasoningNames; // seasoningNames
   final List<double> amounts; // amounts
+  final String recipeLink = '';
 
   CustomRecipeDataDetailDto({
     required this.recipeId,

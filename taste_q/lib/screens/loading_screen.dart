@@ -1,7 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:taste_q/screens/final_ready_screen.dart';
 import 'package:taste_q/views/front_appbar.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:provider/provider.dart';
+import 'package:taste_q/providers/ble_provider.dart';
 
 class LoadingScreen extends StatefulWidget {
   final String recipeImageUrl;
@@ -10,6 +14,8 @@ class LoadingScreen extends StatefulWidget {
   final List<String> seasoningName;
   final List<double> amounts;
   final String recipeLink;
+  final BluetoothDevice? connectedDevice;
+  final BluetoothCharacteristic? txCharacteristic;
 
   const LoadingScreen({
     super.key,
@@ -19,12 +25,12 @@ class LoadingScreen extends StatefulWidget {
     required this.seasoningName,
     required this.amounts,
     required this.recipeLink,
+    this.connectedDevice,
+    this.txCharacteristic,
   });
 
   @override
-  State<LoadingScreen> createState() => _LoadingScreenState(
-
-  );
+  State<LoadingScreen> createState() => _LoadingScreenState();
 }
 
 class _LoadingScreenState extends State<LoadingScreen>
@@ -76,6 +82,18 @@ class _LoadingScreenState extends State<LoadingScreen>
     setState(() {
       _stage = 3; // 종료 상태
     });
+    final ble = Provider.of<BleProvider>(context, listen: false);
+    try {
+      if (ble.txCharacteristic != null) {
+        debugPrint("TX characteristic UUID: ${ble.txCharacteristic?.uuid}");
+        await ble.txCharacteristic!.write(utf8.encode("M_ON"), withoutResponse: false);
+        debugPrint("BLE write command sent: M_ON");
+      } else {
+        debugPrint("BLE 명령어 전송 생략됨 (txCharacteristic이 null)");
+      }
+    } catch (e) {
+      debugPrint("BLE 전송 실패: $e");
+    }
     await Future.delayed(const Duration(milliseconds: 1500)); // 1.5초 대기 후 화면 전환
     if (mounted) {
       Navigator.of(context).pushReplacement(

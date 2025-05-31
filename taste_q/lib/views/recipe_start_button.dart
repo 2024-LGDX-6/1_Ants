@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:taste_q/screens/loading_screen.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class RecipeStartButton extends StatelessWidget {
   final String recipeImageUrl;
@@ -9,6 +10,8 @@ class RecipeStartButton extends StatelessWidget {
   final List<String> seasoningName;
   final List<double> amounts;
   final String recipeLink;
+  final BluetoothDevice? connectedDevice;
+  final BluetoothCharacteristic? txCharacteristic;
 
   const RecipeStartButton({
     super.key,
@@ -18,6 +21,8 @@ class RecipeStartButton extends StatelessWidget {
     required this.seasoningName,
     required this.amounts,
     required this.recipeLink,
+    this.connectedDevice,
+    this.txCharacteristic,
   });
 
   @override
@@ -25,6 +30,7 @@ class RecipeStartButton extends StatelessWidget {
     return Center(
       child: ElevatedButton(
         onPressed: () {
+          print({"$seasoningName 사용량 : ${amounts}g"});
           // 버튼 클릭 시 동작 정의
           Navigator.push(
             context,
@@ -36,6 +42,8 @@ class RecipeStartButton extends StatelessWidget {
                 seasoningName: seasoningName,
                 amounts: amounts,
                 recipeLink: recipeLink,
+                connectedDevice: connectedDevice,
+                txCharacteristic: txCharacteristic,
               ),
             ),
           );
