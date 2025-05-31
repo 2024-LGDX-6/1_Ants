@@ -1,15 +1,25 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,validator
 from datetime import datetime
-from typing import Optional
-
+from typing import Optional, Union
+from enum import Enum
 
 class CookingLogCreateRequest(BaseModel):
     recipe_id: int
-    cooking_mode: str
+    cooking_mode: Union[str, int]  # 숫자 또는 문자열 입력 가능
     start_time: datetime
     servings: int
     recipe_type: int
 
+    @validator("cooking_mode", pre=True)
+    def convert_cooking_mode(cls, v):
+        mode_map = {
+            0: "표준",
+            1: "웰빙",
+            2: "미식식"
+        }
+        if isinstance(v, int):
+            return mode_map.get(v, "unknown")
+        return v
 
 class DeviceConnectionLogCreateRequest(BaseModel):
     device_id: int
@@ -25,7 +35,7 @@ class CustomRecipeCreateRequest(BaseModel):
 class CustomRecipeSeasoningDetailCreateRequest(BaseModel):
     custom_recipe_id: int
     seasoning_id: int
-    amount: int
+    amount: float
     unit: str
     injection_order: int
 
@@ -38,3 +48,16 @@ class UserFridgeCreateRequest(BaseModel):
 class UserFridgeDeleteRequest(BaseModel):
     device_id: int
     fridge_Ingredients: str
+
+
+class RecipeImageRequest(BaseModel):
+    recipe_id: int
+    image_name: str
+
+
+class FeedbackType(str, Enum):
+    increase = "increase"
+    decrease = "decrease"
+
+class SeasoningFeedbackRequest(BaseModel):
+    feedback_type: FeedbackType

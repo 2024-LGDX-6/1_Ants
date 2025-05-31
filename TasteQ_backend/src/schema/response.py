@@ -37,7 +37,7 @@ class RecipeSeasoningDetailResponse(BaseModel):
     recipe_name: str
     seasoning_id: int
     seasoning_name: str
-    amount: int
+    amount: float
     unit: str
     injection_order: int
 
@@ -140,3 +140,9 @@ class UserFridgeResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class RecipeImageResponse(BaseModel):
+    image_id: int
+    recipe_id: int
+    image_name: str

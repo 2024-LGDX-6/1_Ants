@@ -21,9 +21,9 @@ def get_user_fridge(user_id: int):
 
 
 @router.delete("/user-fridge", response_model=int)
-def delete_fridge_ingredient(request: UserFridgeDeleteRequest):
+def delete_fridge_ingredient(device_id: int, ingredient: str):
     deleted_count = user_fridge_service.delete_fridge_ingredient(
-        request.device_id, request.fridge_Ingredients
+        device_id, ingredient
     )
     if deleted_count == 0:
         raise HTTPException(status_code=404, detail="Ingredient not found in fridge")
