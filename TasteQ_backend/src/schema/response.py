@@ -1,6 +1,6 @@
 # src/schema/response.py
  # Pydantic 모델
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 from typing import Optional
 from datetime import datetime
 
@@ -65,10 +65,15 @@ class CookingLogResponse(BaseModel):
     log_id: int
     recipe_id: int
     recipe_name: str
-    cooking_mode: str
+    cooking_mode: str  # 문자열로 DB에서 받아오지만, 응답 시 숫자로 변환
     start_time: datetime
     servings: int
     recipe_type: int
+
+    @field_serializer("cooking_mode")
+    def serialize_cooking_mode(self, value: str, _info) -> int:
+        mode_map = {"표준": 0, "웰빙": 1, "미식": 2}
+        return mode_map.get(value, -1)  # -1은 예외 처리용
 
     class Config:
         from_attributes = True
