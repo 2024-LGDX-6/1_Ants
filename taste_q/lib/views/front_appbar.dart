@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 class FrontAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const FrontAppBar({super.key});
+  final String appBarName; // 앱바명
+
+  const FrontAppBar({super.key, required this.appBarName});
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       title: Text(
-        "테이스트Q",
+        appBarName,
         style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
       ),
       backgroundColor: Colors.white,

@@ -26,7 +26,7 @@ class CondimentTypeUsages extends StatelessWidget {
         _buildCard(
           title: "예상 조미료 사용량",
           names: seasoningNames,
-          values: amounts.map((e) => "${e}g").toList(),
+          values: amounts.map((e) => "${double.parse(e.toStringAsFixed(1))}g").toList(),
         ),
         _buildCard(
           title: "하루 권장 사용량",

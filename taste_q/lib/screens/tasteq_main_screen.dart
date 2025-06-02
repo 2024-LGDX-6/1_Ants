@@ -45,7 +45,7 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
     // final feedback = controller.getLastRecipeFeedback();
 
     return Scaffold(
-      appBar: FrontAppBar(), // PreferredSizeWidget 구현체
+      appBar: FrontAppBar(appBarName: "테이스트Q",),
       backgroundColor: Colors.white,
 
       // 본문 - 하단바의 탭 클릭에 따라 변경됨
