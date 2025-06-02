@@ -122,7 +122,7 @@ class CustomRecipeSeasoningDetailResponse(BaseModel):
     custom_recipe_name: str  # JOIN 결과
     seasoning_id: int
     seasoning_name: str      # JOIN 결과
-    amount: int
+    amount: float
     unit: str
     injection_order: int
 

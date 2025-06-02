@@ -65,3 +65,7 @@ class TasteFeedbackType(str, Enum):
 class TasteFeedbackRequest(BaseModel):
     recipe_id: int
     feedback: TasteFeedbackType
+
+class CustomRecipeTasteFeedbackRequest(BaseModel):
+    custom_recipe_id: int
+    feedback: TasteFeedbackType
