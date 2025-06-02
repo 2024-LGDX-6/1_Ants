@@ -135,7 +135,7 @@ class FinalReadyScreen extends StatelessWidget {
                   // 요리 로그 저장
                   controller.createCookLog(
                     recipeId, cookingMode,
-                    startTime, servings, recipeType,
+                    servings, recipeType,
                   );
                   // 피드백 페이지 이동
                   Navigator.of(context).pushReplacement(
