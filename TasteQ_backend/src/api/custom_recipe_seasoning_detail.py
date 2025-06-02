@@ -36,5 +36,5 @@ def apply_custom_feedback(request: CustomRecipeTasteFeedbackRequest):
     if result == []:
         return {"message": "No adjustment needed (normal taste)"}
     if result is None:
-        raise HTTPException(status_code=404, detail="No matching seasoning details to update")
+        return [{"message": "조미료 변경에 실패했습니다."}]
     return result

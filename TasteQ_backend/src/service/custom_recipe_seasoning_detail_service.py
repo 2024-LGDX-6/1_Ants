@@ -99,7 +99,7 @@ def apply_custom_recipe_taste_feedback(custom_recipe_id: int, feedback: str):
                 WHERE custom_recipe_id = %s AND seasoning_id = %s
             """, (scale, custom_recipe_id, seasoning_id))
             if cursor.rowcount == 0:
-                return None
+                return [{"message": f"'{feedback}'에 해당하는 조미료가 이 레시피에 없습니다."}]
             conn.commit()
 
             # 변경된 데이터 반환

@@ -37,3 +37,20 @@ def get_recipe_image(recipe_id: int):
     finally:
         conn.close()
 
+def get_all_recipe_images():
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            sql = """
+                SELECT
+                    ri.image_id,
+                    ri.recipe_id,
+                    ri.image_name
+                FROM recipe_image ri
+                JOIN recipe r ON ri.recipe_id = r.recipe_id
+                ORDER BY ri.recipe_id
+            """
+            cursor.execute(sql)
+            return cursor.fetchall()
+    finally:
+        conn.close()

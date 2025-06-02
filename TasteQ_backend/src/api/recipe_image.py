@@ -1,6 +1,7 @@
 from fastapi import File, APIRouter, UploadFile, Form, HTTPException
 from fastapi.responses import Response
-from service.recipe_image_service import save_recipe_image, get_recipe_image
+from service.recipe_image_service import save_recipe_image, get_recipe_image,get_all_recipe_images as fetch_all_recipe_images
+from schema.response import RecipeImageResponse
 import mimetypes
 from urllib.parse import quote
 
@@ -15,6 +16,13 @@ async def upload_recipe_image(
     image_id = save_recipe_image(recipe_id, image_name, image_file)
     return {"image_id": image_id, "message": "Image uploaded successfully"}
 
+
+@router.get("/all", response_model=list[RecipeImageResponse])
+async def get_all_recipe_images():
+    result = fetch_all_recipe_images()
+    if not result:
+        raise HTTPException(status_code=404, detail="No images found")
+    return result
 
 @router.get("/{recipe_id}")
 async def get_recipe_image_by_id(recipe_id: int):
