@@ -18,6 +18,7 @@ class LoadingScreen extends StatefulWidget {
   final int recipeType;
   final int servings;
   final int cookingMode;
+  final DateTime startTime;
   final BluetoothDevice? connectedDevice;
   final BluetoothCharacteristic? txCharacteristic;
 
@@ -32,6 +33,7 @@ class LoadingScreen extends StatefulWidget {
     required this.recipeType,
     required this.servings,
     required this.cookingMode,
+    required this.startTime,
     this.connectedDevice,
     this.txCharacteristic,
   });
@@ -133,6 +135,7 @@ class _LoadingScreenState extends State<LoadingScreen>
             recipeType: widget.recipeType,
             servings: widget.servings,
             cookingMode: widget.cookingMode,
+            startTime: widget.startTime,
             recipeLink: widget.recipeLink,
           ),
         ),

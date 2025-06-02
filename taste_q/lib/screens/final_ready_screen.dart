@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taste_q/controllers/cook_log_controller.dart';
 import 'package:taste_q/screens/feedback_screen.dart';
 import 'package:taste_q/views/condiment_type_usages.dart';
 import 'package:taste_q/views/final_ready_appbar.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:taste_q/views/safe_images.dart';
 
 class FinalReadyScreen extends StatelessWidget {
+
   final String recipeLink;
   final List<double> amounts;
   final List<String> seasoningName;
@@ -16,6 +18,7 @@ class FinalReadyScreen extends StatelessWidget {
   final int recipeType;
   final int servings;
   final int cookingMode;
+  final DateTime startTime;
 
   const FinalReadyScreen({
     super.key,
@@ -28,6 +31,7 @@ class FinalReadyScreen extends StatelessWidget {
     required this.recipeType,
     required this.servings,
     required this.cookingMode,
+    required this.startTime,
   });
 
   // Future<void> _launchRecipeLink(String url) async {
@@ -37,8 +41,12 @@ class FinalReadyScreen extends StatelessWidget {
   //   }
   // }
 
+
+
   @override
   Widget build(BuildContext context) {
+    CookLogController controller = CookLogController();
+
     return Scaffold(
       appBar: const FinalReadyAppbar(),
       backgroundColor: Colors.white,
@@ -124,6 +132,12 @@ class FinalReadyScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
+                  // 요리 로그 저장
+                  controller.createCookLog(
+                    recipeId, cookingMode,
+                    startTime, servings, recipeType,
+                  );
+                  // 피드백 페이지 이동
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (context) => const FeedbackScreen(),

@@ -60,6 +60,7 @@ class RecipeStartButton extends StatelessWidget {
                 recipeType: recipeType,
                 servings: servings,
                 cookingMode: cookingMode,
+                startTime: dateTime,
                 connectedDevice: connectedDevice,
                 txCharacteristic: txCharacteristic,
               ),

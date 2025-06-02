@@ -4,7 +4,7 @@ class CookLogDataDTO {
   final int recipeId; // 레시피 아이디
   final String recipeName; // 레시피 이름
   final int cookingMode; // 조리모드(표준, 웰빙, 미식)
-  final DateTime startTime; // (조리시작시간)
+  final String startTime; // (조리시작시간)
   final int servings; // 인분 수
   final int recipeType; // 레시피 유형(일반, 개인)
 
@@ -25,7 +25,7 @@ class CookLogDataDTO {
         recipeId: json["recipe_id"] as int,
         recipeName: json["recipe_name"] as String,
         cookingMode: json["cooking_mode"] as int,
-        startTime: json["start_time"] as DateTime,
+        startTime: json["start_time"] as String,
         servings: json["servings"] as int,
         recipeType: json["recipe_type"] as int,
     );

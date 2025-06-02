@@ -55,7 +55,7 @@ class MainView extends StatelessWidget {
                   recipeImages: recipeImages,
                 ),
                 SizedBox(height: 16.h),
-                SectionHistory(feedback: feedback),
+                SectionHistory(),
                 SizedBox(height: 16.h),
                 SectionButtons(),
                 SizedBox(height: 32.h),
