@@ -27,4 +27,6 @@ def apply_taste_feedback(request: TasteFeedbackRequest):
     result = service.apply_taste_feedback(request.recipe_id, request.feedback)
     if result is None:
         return {"message": "No adjustment needed (normal taste)"}
+
+    
     return result
