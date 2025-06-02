@@ -69,3 +69,9 @@ class TasteFeedbackRequest(BaseModel):
 class CustomRecipeTasteFeedbackRequest(BaseModel):
     custom_recipe_id: int
     feedback: TasteFeedbackType
+
+
+class CustomRecipeImageCreateRequest(BaseModel):
+    custom_recipe_id: int
+    custom_image_name: str
+
