@@ -13,7 +13,7 @@ class UserFridgeController {
   ) async {
     final response = await http.get(Uri.parse('$baseUrl/user-fridge/$userId'));
     if (response.statusCode != 200) {
-      throw Exception('냉장고 정보를 불러올 수 없습니다.');
+      throw Exception('서버 오류: ${response.statusCode}');
     }
     final List<dynamic> jsonList = json.decode(response.body);
 
@@ -46,7 +46,7 @@ class UserFridgeController {
       }),
     );
     if (response.statusCode != 200) {
-      throw Exception('재료 추가 실패');
+      throw Exception('재료 추가 실패: ${response.statusCode}');
     }
   }
 
@@ -63,7 +63,7 @@ class UserFridgeController {
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode != 200) {
-      throw Exception('삭제 실패');
+      throw Exception('삭제 실패: ${response.statusCode}');
     }
   }
 

@@ -53,7 +53,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
     // build는 Future<Widget>이 아니라 Widget을 반환해야 함
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: FrontAppBar(),
+      appBar: FrontAppBar(appBarName: "레시피 목록",),
       body: Column(
         children: [
           // 레시피 검색창

@@ -20,7 +20,7 @@ class RecipeDataScreen extends StatelessWidget {
     // final controller = RecipeController();
 
     return Scaffold(
-      appBar: FrontAppBar(),
+      appBar: FrontAppBar(appBarName: "레시피 정보",),
       backgroundColor: Colors.white,
       body: Consumer<RecipeProvider>(
         builder: (context, provider, _) {

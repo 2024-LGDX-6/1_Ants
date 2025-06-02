@@ -148,7 +148,7 @@ class _LoadingScreenState extends State<LoadingScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const FrontAppBar(),
+      appBar: const FrontAppBar(appBarName: "디바이스 확인",),
       backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
