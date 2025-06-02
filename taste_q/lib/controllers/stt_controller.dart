@@ -19,7 +19,7 @@ class STTController {
     }
   }
 
-  // 음성인식 시작 및 결과 반환
+  // 음성인식 텍스트 전송 및 결과 반환
   Future<String> startListening() async {
     if (!isInitialized) await initSpeech();
 
@@ -43,7 +43,7 @@ class STTController {
     final response = await http.post(
       Uri.parse('$baseUrl/speech-to-text'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'voiceText': voiceText}),
+      body: jsonEncode({'voice_text': voiceText}),
     );
     if (response.statusCode != 200) {
       throw Exception('서버 전송 실패: ${response.statusCode}');
