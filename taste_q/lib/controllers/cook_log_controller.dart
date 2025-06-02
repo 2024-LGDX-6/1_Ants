@@ -42,7 +42,7 @@ class CookLogController {
   // 저장기록 추가(create) 로직
   Future<void> createCookLog(
       int recipeId, int cookingMode,
-      DateTime startTime, int servings, int recipeType
+      String startTime, int servings, int recipeType
       ) async {
     final response = await http.post(
       Uri.parse('$baseUrl/cooking-logs'),

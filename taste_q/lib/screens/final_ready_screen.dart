@@ -18,7 +18,7 @@ class FinalReadyScreen extends StatelessWidget {
   final int recipeType;
   final int servings;
   final int cookingMode;
-  final DateTime startTime;
+  final String startTime;
 
   const FinalReadyScreen({
     super.key,

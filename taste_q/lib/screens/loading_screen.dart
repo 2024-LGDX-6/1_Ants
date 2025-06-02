@@ -18,7 +18,7 @@ class LoadingScreen extends StatefulWidget {
   final int recipeType;
   final int servings;
   final int cookingMode;
-  final DateTime startTime;
+  final String startTime;
   final BluetoothDevice? connectedDevice;
   final BluetoothCharacteristic? txCharacteristic;
 
