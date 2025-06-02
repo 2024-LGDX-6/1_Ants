@@ -55,9 +55,13 @@ class RecipeImageRequest(BaseModel):
     image_name: str
 
 
-class FeedbackType(str, Enum):
-    increase = "increase"
-    decrease = "decrease"
+class TasteFeedbackType(str, Enum):
+    sweet = "달았어요"
+    salty = "짰어요"
+    spicy = "매웠어요"
+    bland = "싱거웠어요"
+    normal = "보통"
 
-class SeasoningFeedbackRequest(BaseModel):
-    feedback_type: FeedbackType
+class TasteFeedbackRequest(BaseModel):
+    recipe_id: int
+    feedback: TasteFeedbackType

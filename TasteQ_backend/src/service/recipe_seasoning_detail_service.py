@@ -86,3 +86,18 @@ def update_seasoning_amount_by_recipe(recipe_id: int, seasoning_id: int, scale: 
             return cursor.fetchone()
     finally:
         conn.close()
+
+def apply_taste_feedback(recipe_id: int, feedback: str):
+    feedback_rules = {
+        "달았어요": {"seasoning_id": 2, "scale": 0.9},
+        "짰어요": {"seasoning_id": 3, "scale": 0.9},
+        "매웠어요": {"seasoning_id": 1, "scale": 0.9},
+        "싱거웠어요": {"seasoning_id": 3, "scale": 1.1},
+        "좋았어요": None
+    }
+
+    rule = feedback_rules.get(feedback)
+    if rule is None:
+        return None  # '좋았어요'인 경우 변경 없음
+
+    return update_seasoning_amount_by_recipe(recipe_id, rule["seasoning_id"], rule["scale"])
