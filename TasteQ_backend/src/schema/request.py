@@ -59,7 +59,7 @@ class TasteFeedbackType(str, Enum):
     salty = "짰어요"
     spicy = "매웠어요"
     bland = "싱거웠어요"
-    normal = "보통"
+    normal = "좋았어요"
 
 class TasteFeedbackRequest(BaseModel):
     recipe_id: int
