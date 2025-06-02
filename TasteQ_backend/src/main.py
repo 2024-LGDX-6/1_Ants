@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from api import user, seasoning, recipe, user_fridge, user_seasoning, cooking_log ,cooking_device , custom_recipe ,device_connection_log, custom_recipe_seasoning_detail, recipe_seasoning_detail,speech
 from api import stt_ws, recipe_image,custom_recipe_image
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
@@ -15,7 +15,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+# 정적 파일 서빙
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 # 각 API 라우터 등록

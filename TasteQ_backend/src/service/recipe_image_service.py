@@ -1,16 +1,30 @@
-from database.connection import get_connection
+# service/recipe_image_service.py
+import os
 from fastapi import UploadFile
+from database.connection import get_connection
 
-def save_recipe_image(recipe_id: int, image_name: str, image_file: UploadFile):
+UPLOAD_DIR = "static/recipe_images"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+def save_recipe_image(recipe_id: int, image_name: str, image_file: UploadFile) -> int:
+
+    ext = os.path.splitext(image_file.filename)[-1]
+    filename = f"{recipe_id}{ext}"
+    file_path = os.path.join(UPLOAD_DIR, filename)
+
+    with open(file_path, "wb") as f:
+        f.write(image_file.file.read())
+
+    relative_path = f"/{file_path.replace(os.sep, '/')}"
+
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
-            binary_data = image_file.file.read()
             sql = """
-                INSERT INTO recipe_image (recipe_id, image_name, image_data)
+                INSERT INTO recipe_image (recipe_id, image_name, image_path)
                 VALUES (%s, %s, %s)
             """
-            cursor.execute(sql, (recipe_id, image_name, binary_data))
+            cursor.execute(sql, (recipe_id, image_name, relative_path))
             conn.commit()
             return cursor.lastrowid
     finally:
@@ -21,19 +35,13 @@ def get_recipe_image(recipe_id: int):
     try:
         with conn.cursor() as cursor:
             sql = """
-                SELECT
-                    ri.image_id,
-                    ri.recipe_id,
-                    ri.image_name,
-                    ri.image_data
-                FROM recipe_image ri
-                JOIN recipe r ON ri.recipe_id = r.recipe_id
-                WHERE ri.recipe_id = %s
+                SELECT image_name, image_path
+                FROM recipe_image
+                WHERE recipe_id = %s
                 LIMIT 1
             """
             cursor.execute(sql, (recipe_id,))
-            result = cursor.fetchone()
-            return result
+            return cursor.fetchone()
     finally:
         conn.close()
 
@@ -42,13 +50,9 @@ def get_all_recipe_images():
     try:
         with conn.cursor() as cursor:
             sql = """
-                SELECT
-                    ri.image_id,
-                    ri.recipe_id,
-                    ri.image_name
-                FROM recipe_image ri
-                JOIN recipe r ON ri.recipe_id = r.recipe_id
-                ORDER BY ri.recipe_id
+                SELECT image_id, recipe_id, image_name, image_path
+                FROM recipe_image
+                ORDER BY recipe_id
             """
             cursor.execute(sql)
             return cursor.fetchall()

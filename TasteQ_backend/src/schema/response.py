@@ -151,15 +151,22 @@ class RecipeImageResponse(BaseModel):
     image_id: int
     recipe_id: int
     image_name: str
+    image_path: str  # ✅ 파일 경로 추가
+
+    class Config:
+        from_attributes = True
 
 class CustomRecipeImageResponse(BaseModel):
     custom_image_id: int
     custom_recipe_id: int
-    custom_recipe_name: str  # JOIN된 custom_recipe 테이블의 이름
+    custom_recipe_name: str
     custom_image_name: str
+    custom_image_path: str  # ✅ 파일 경로 추가
 
     class Config:
         from_attributes = True
+
+
 
 class MessageResponse(BaseModel):
     message: str

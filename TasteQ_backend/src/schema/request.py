@@ -52,6 +52,7 @@ class UserFridgeDeleteRequest(BaseModel):
 class RecipeImageRequest(BaseModel):
     recipe_id: int
     image_name: str
+    image_path: str  # ✅ 추가: 실제 저장된 경로
 
 
 class TasteFeedbackType(str, Enum):
@@ -73,4 +74,5 @@ class CustomRecipeTasteFeedbackRequest(BaseModel):
 class CustomRecipeImageCreateRequest(BaseModel):
     custom_recipe_id: int
     custom_image_name: str
+    custom_image_path: str  # ✅ 새로 추가된 필드 (파일 경로 또는 URL)
 
