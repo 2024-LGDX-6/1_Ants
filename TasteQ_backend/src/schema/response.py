@@ -122,7 +122,7 @@ class CustomRecipeSeasoningDetailResponse(BaseModel):
     custom_recipe_name: str  # JOIN 결과
     seasoning_id: int
     seasoning_name: str      # JOIN 결과
-    amount: int
+    amount: float
     unit: str
     injection_order: int
 
@@ -146,3 +146,12 @@ class RecipeImageResponse(BaseModel):
     image_id: int
     recipe_id: int
     image_name: str
+
+class CustomRecipeImageResponse(BaseModel):
+    custom_image_id: int
+    custom_recipe_id: int
+    custom_recipe_name: str  # JOIN된 custom_recipe 테이블의 이름
+    custom_image_name: str
+
+    class Config:
+        from_attributes = True

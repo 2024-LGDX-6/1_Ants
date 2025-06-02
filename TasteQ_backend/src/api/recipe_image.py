@@ -4,7 +4,7 @@ from service.recipe_image_service import save_recipe_image, get_recipe_image
 import mimetypes
 from urllib.parse import quote
 
-router = APIRouter(prefix="/recipe-image", tags=["Recipe Image"])
+router = APIRouter(prefix="/recipe-image", tags=["Recipe_image"])
 
 @router.post("/upload")
 async def upload_recipe_image(
