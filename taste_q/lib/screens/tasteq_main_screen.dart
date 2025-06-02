@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:taste_q/controllers/main_controller.dart';
+import 'package:taste_q/controllers/stt_controller.dart';
 import 'package:taste_q/views/front_appbar.dart';
+import 'package:taste_q/views/main_view.dart';
 import 'package:taste_q/views/setting_view.dart';
-import '../controllers/main_controller.dart';
-import '../views/main_view.dart';
 
 class TasteqMainScreen extends StatefulWidget {
   const TasteqMainScreen({super.key});
@@ -14,6 +15,10 @@ class TasteqMainScreen extends StatefulWidget {
 class _TasteqMainScreenState extends State<TasteqMainScreen> {
   // final MainController controller = MainController();
   final PageController _pageController = PageController();
+
+  // 음성인식 객체 및 컨트롤러
+  final STTController _sttController = STTController();
+  String _recognizedText = "음성인식을 시작하세요.";
 
   int _currentIndex = 0;
 
@@ -32,6 +37,23 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
       curve: Curves.easeInOut,
     );
   }
+
+  // 음성인식 로직
+  void _startVoiceRecognition() async {
+    try {
+      final result = await _sttController.startListening();
+      setState(() {
+        _recognizedText = result;
+      });
+      print("음성인식 결과: $result");
+    } catch (e) {
+      setState(() {
+        _recognizedText = "음성인식 실패: $e";
+      });
+      print("음성인식 오류: $e");
+    }
+  }
+
 
   @override
   void dispose() {
@@ -74,7 +96,7 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
 
       // 음성인식 검색 버튼
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: _startVoiceRecognition,
         shape: const CircleBorder(),
         backgroundColor: Colors.white,
         child: const Icon(Icons.mic, color: Colors.black),
