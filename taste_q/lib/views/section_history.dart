@@ -25,6 +25,11 @@ class SectionHistory extends StatelessWidget {
           );
         } else {
           final cookLog = snapshot.data!.first;
+
+          String dateString = cookLog.startTime;
+          DateTime date = DateTime.parse(dateString);
+          String formattedDate = "${date.year}년 ${date.month}월 ${date.day}일";
+
           return GestureDetector(
             onTap: () {
               Navigator.push(
@@ -58,10 +63,10 @@ class SectionHistory extends StatelessWidget {
                   Row(
                     children: [
                       safeImage('images/foods/default.jpg', 130.w, 80.w),
-                      SizedBox(width: 12.w),
+                      SizedBox(width: 18.w),
                       Expanded(  // 텍스트가 넘치지 않도록 Expanded() 활용
                         child: Text(
-                          '어제 ${cookLog.recipeName}를 드셨어요!\n\n평가: "맛있어요"',
+                          '''최근 $formattedDate에\n요리한 음식 : ${cookLog.recipeName}\n음식 평가 : "맛있어요"''',
                           style: TextStyle(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.bold,

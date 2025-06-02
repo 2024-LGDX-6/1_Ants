@@ -140,7 +140,10 @@ class FinalReadyScreen extends StatelessWidget {
                   // 피드백 페이지 이동
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) => const FeedbackScreen(),
+                      builder: (context) => FeedbackScreen(
+                        recipeId: recipeId,
+                        recipeType: recipeType,
+                      ),
                     ),
                   );
                 },

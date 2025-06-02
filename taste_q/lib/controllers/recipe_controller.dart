@@ -63,6 +63,21 @@ class RecipeController {
     );
   }
 
+  // 피드백 저장
+  Future<void> patchFeedback(int recipeId, String feedback) async {
+    final response = await http.patch(
+      Uri.parse('$baseUrl/recipe-feedback'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'recipe_id': recipeId,
+        'feedback': feedback
+      }),
+    );
+    if (response.statusCode != 200) {
+      print('PATCH 요청 실패: ${response.statusCode}');
+    }
+  }
+
   // RecipeModeSelector, SettingView에서 사용될 provider 메소드 (mode + multiplier)
   void updateModeAndMultiplier(BuildContext context, RecipeMode newMode, int newMultiplier) {
     final provider = Provider.of<RecipeProvider>(context, listen: false);

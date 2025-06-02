@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:taste_q/controllers/custom_recipe_controller.dart';
+import 'package:taste_q/controllers/recipe_controller.dart';
 import 'package:taste_q/views/feedback_appbar.dart';
 
 class FeedbackScreen extends StatefulWidget {
-  const FeedbackScreen({super.key});
+  final int recipeId;
+  final int recipeType;
+
+  const FeedbackScreen({
+    super.key,
+    required this.recipeId,
+    required this.recipeType
+  });
 
   @override
   State<FeedbackScreen> createState() => _FeedbackScreenState();
+
 }
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
@@ -24,8 +33,24 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   // Set을 사용하여 중복 선택을 방지하고, 현재 선택된 항목을 관리합니다.
   final Set<String> _selectedOptions = {};
 
+  // 피드백 전송에 사용할 컨트롤러 (일반/개인 레시피)
+  RecipeController controllerDefault = RecipeController();
+  CustomRecipeController controllerCustom = CustomRecipeController();
+
+  // 레시피 타입에 따라 컨트롤러를 선택하는 메서드
+  Future<void> selectController(int recipeType, int recipeId, String feedback) {
+    if (recipeType == 0) {
+      return controllerDefault.patchFeedback(recipeId, feedback);
+    } else if (recipeType == 1) {
+      return controllerCustom.patchFeedback(recipeId, feedback);
+    } else {
+      throw ArgumentError('매개변수는 0 또는 1 이어야 합니다.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       // 화면 상단에 고정되는 앱바를 설정합니다.
       appBar: const FeedbackAppbar(),
@@ -101,7 +126,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 // 버튼이 눌렸을 때 실행되는 함수입니다.
                 // 현재 선택된 피드백을 리스트로 변환하여 스낵바에 표시합니다.
                 onPressed: () {
-                  final selected = _selectedOptions.toList();
+                  // 피드백 전송 메소드 사용
+                  final List<String> selectedFeedbackText = _selectedOptions.toList();
+                  print(selectedFeedbackText.first);
+                  selectController(
+                      widget.recipeType, widget.recipeId, selectedFeedbackText.first
+                  );
 
                   showDialog(
                     context: context,
@@ -109,6 +139,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     builder: (BuildContext context) {
                       // 1초 후 자동으로 닫히도록 Future.delayed 사용
                       Future.delayed(Duration(seconds: 1), () {
+                        selectController( // 피드백 전송 메소드 사용
+                            widget.recipeType, widget.recipeId, "좋았어요"
+                        );
                         Navigator.of(context).pop(); // 첫 번째 뒤로가기
                         Navigator.of(context).pop(); // 두 번째 뒤로가기
                         Navigator.of(context).pop(); // 세 번째 뒤로가기
@@ -152,4 +185,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
 }
