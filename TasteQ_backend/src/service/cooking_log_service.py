@@ -1,5 +1,7 @@
 # --- service/cooking_log_service.py ---
 from database.connection import get_connection
+from datetime import datetime
+
 
 def create_cooking_log(data):
     conn = get_connection()
@@ -12,7 +14,7 @@ def create_cooking_log(data):
             cursor.execute(sql, (
                 data.recipe_id,
                 data.cooking_mode,
-                data.start_time,
+                datetime.now(),
                 data.servings,
                 data.recipe_type
             ))

@@ -6,7 +6,6 @@ from enum import Enum
 class CookingLogCreateRequest(BaseModel):
     recipe_id: int
     cooking_mode: Union[str, int]  # 숫자 또는 문자열 입력 가능
-    start_time: datetime
     servings: int
     recipe_type: int
 
@@ -15,7 +14,7 @@ class CookingLogCreateRequest(BaseModel):
         mode_map = {
             0: "표준",
             1: "웰빙",
-            2: "미식식"
+            2: "미식"
         }
         if isinstance(v, int):
             return mode_map.get(v, "unknown")
