@@ -82,7 +82,7 @@ def apply_custom_recipe_taste_feedback(custom_recipe_id: int, feedback: str):
                 "짰어요":   (3, 0.9),   # 짠맛 줄임 (seasoning_id=3)
                 "매웠어요": (1, 0.9),   # 매운맛 줄임 (seasoning_id=1)
                 "싱거웠어요": (3, 1.1),  # 짠맛 늘림 (seasoning_id=3)
-                "보통":     (None, 1.0) # 변경 없음
+                "좋았어요":     (None, 1.0) # 변경 없음
             }
 
             if feedback not in feedback_map:
