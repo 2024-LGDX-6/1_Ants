@@ -34,7 +34,7 @@ class MainController {
     ),
   ];
 
-  static const String baseUrl = "http://192.168.219.130:8000";
+  static const String baseUrl = "http://192.168.219.66:8000";
 
   // 전체 레시피 목록 불러오기
   Future<MainDataDTO> getAllRecipes() async {
