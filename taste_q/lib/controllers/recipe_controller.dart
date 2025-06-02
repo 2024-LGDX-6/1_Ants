@@ -8,7 +8,7 @@ import 'package:taste_q/models/recipe_mode.dart';
 import 'package:taste_q/providers/recipe_provider.dart';
 
 class RecipeController {
-  static const String baseUrl = "http://192.168.219.130:8000";
+  static const String baseUrl = "http://192.168.219.66:8000";
 
   // 특정 레시피ID로 레시피 및 시즈닝 데이터를 백엔드에서 받아 RecipeDataDTO 반환
   Future<RecipeDataDTO> getRecipeData(int recipeId, BuildContext context) async {

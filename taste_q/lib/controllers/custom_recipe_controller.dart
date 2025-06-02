@@ -9,7 +9,7 @@ import '../models/recipe_mode.dart';
 
 class CustomRecipeController {
 
-  static const String baseUrl = "http://192.168.219.130:8000";
+  static const String baseUrl = "http://192.168.219.66:8000";
 
   // 전체 개인 레시피 목록 불러오기 - getAllCustomRecipes()
   Future<CustomRecipeDataDTO> getAllRecipes() async {

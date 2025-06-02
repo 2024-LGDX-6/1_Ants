@@ -4,7 +4,7 @@ import 'package:taste_q/controllers/dto/user_fridge_data_dto.dart';
 
 // 데이터 반환 컨트롤러
 class UserFridgeController {
-  static const String baseUrl = "http://192.168.219.130:8000";
+  static const String baseUrl = "http://192.168.219.66:8000";
 
   // 특정 user_id와 device_id에 해당하는 냉장고 데이터 반환
   Future<List<UserFridgeDataDTO>> getFridgeDataByUser(
