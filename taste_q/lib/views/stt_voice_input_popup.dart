@@ -7,9 +7,9 @@ class STTVoiceInputPopup extends StatefulWidget {
   final STTController controller;
 
   const STTVoiceInputPopup({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   @override
   State<STTVoiceInputPopup> createState() => _STTVoiceInputPopupState();

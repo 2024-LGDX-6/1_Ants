@@ -44,7 +44,7 @@ class STTController {
           _speech.stop();
         }
       },
-      listenFor: const Duration(seconds: 60), // 최대 60초까지 듣습니다.
+      // listenFor: const Duration(seconds: 60), // 최대 60초까지 듣습니다.
     );
     return completer.future;
   }
