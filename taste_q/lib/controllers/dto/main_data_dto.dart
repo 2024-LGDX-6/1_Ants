@@ -1,4 +1,6 @@
 // 반환용 DTO 클래스 정의
+import 'image_data_dto.dart';
+
 class MainDataDTO {
   final List<int> recipeIds;
   final List<String> recipeNames;
@@ -12,40 +14,48 @@ class MainDataDTO {
     required this.recipeIngredients,
   });
 
-  // JSON -> DTO 변환
+  /// imageJsonList: JSON 리스트 형태로 들어온 이미지 정보
+  /// (ImageDataDto.fromJson이 가능한 구조)
   factory MainDataDTO.fromJson(
-      List<dynamic> jsonList, Map<int, String> recipeImageMapping) {
-    // 각 필드별 리스트를 초기화
+      List<dynamic> recipeJsonList,
+      List<dynamic> imageJsonList,
+      ) {
+    // 1) 레시피 데이터에서 ID, 이름, 주재료 뽑기
     final recipeIds = <int>[];
     final recipeNames = <String>[];
-    final recipeImageUrls = <String>[];
     final recipeIngredients = <String>[];
 
-    // JSON 배열 데이터를 순회하면서 각 필드 추출
-    for (var item in jsonList) {
-      // 1️. recipe_id를 추출하고 리스트에 추가
-      final id = item['recipe_id'] as int;
-      recipeIds.add(id);
-
-      // 2️. recipe_name을 추출하고 리스트에 추가
-      recipeNames.add(item['recipe_name']);
-
-      // 3️. 이미지 경로는 백엔드 데이터에 없으므로
-      // 프론트에서 정의한 imageMapping에서 recipe_id에 해당하는 경로를 찾아 추가
-      // 만약 매핑이 없다면 'default.jpg'를 기본값으로 설정
-      recipeImageUrls.add(recipeImageMapping[id] ?? 'default.jpg');
-
-      // 4. main_ingredient를 추출하고 리스트에 추가
-      recipeIngredients.add(item['main_ingredient']);
+    for (var item in recipeJsonList) {
+      recipeIds.add(item['recipe_id'] as int);
+      recipeNames.add(item['recipe_name'] as String);
+      recipeIngredients.add(item['main_ingredient'] as String);
     }
 
-    // MainDataDTO 객체 생성 및 반환
+    // 2) imageJsonList를 ImageDataDto 객체 리스트로 변환
+    final imageDtoList = imageJsonList
+        .map((json) => ImageDataDto.fromJson(json as Map<String, dynamic>))
+        .toList();
+
+    // 3) recipeIds 순서대로 매칭되는 imagePath를 찾아 recipeImageUrls에 추가
+    final recipeImageUrls = <String>[];
+    for (var id in recipeIds) {
+      final match = imageDtoList.firstWhere(
+            (imgDto) => imgDto.recipeId == id,
+        orElse: () => ImageDataDto(
+          imageId: -1,
+          recipeId: id,
+          imageName: 'default',
+          imagePath: 'about:blank#blocked',
+        ),
+      );
+      recipeImageUrls.add(match.imagePath);
+    }
+
     return MainDataDTO(
-        recipeIds: recipeIds,
-        recipeNames: recipeNames,
-        recipeImageUrls: recipeImageUrls,
-        recipeIngredients: recipeIngredients
+      recipeIds: recipeIds,
+      recipeNames: recipeNames,
+      recipeImageUrls: recipeImageUrls,
+      recipeIngredients: recipeIngredients,
     );
   }
-
 }

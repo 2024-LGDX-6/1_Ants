@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:taste_q/controllers/dto/user_fridge_data_dto.dart';
 
+import '../models/base_url.dart';
+
 // 데이터 반환 컨트롤러
 class UserFridgeController {
-  static const String baseUrl = "http://192.168.219.183:8000";
+  String baseUrl = BaseUrl.baseUrl;
 
   // 특정 user_id와 device_id에 해당하는 냉장고 데이터 반환
   Future<List<UserFridgeDataDTO>> getFridgeDataByUser(

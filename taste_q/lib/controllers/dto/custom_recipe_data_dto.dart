@@ -1,4 +1,4 @@
-import 'package:taste_q/models/image_mapping.dart';
+import 'package:taste_q/controllers/dto/image_data_dto.dart';
 
 class CustomRecipeDataDTO {
   final List<int> recipeIds; // customRecipeIds
@@ -15,37 +15,45 @@ class CustomRecipeDataDTO {
 
   // JSON -> DTO 변환
   factory CustomRecipeDataDTO.fromJson(
-      List<dynamic> jsonList, Map<int, String> recipeImageMapping) {
-    // 각 필드별 리스트를 초기화
+      List<dynamic> recipeJsonList,
+      List<dynamic> imageJsonList,
+      ) {
+    // 1) 레시피 데이터에서 ID, 이름, 주재료 뽑기
     final customRecipeIds = <int>[];
     final customReceipeNames = <String>[];
-    final customRecipeImageUrls = <String>[];
     final customIngredients = <String>[];
 
-    // JSON 배열 데이터를 순회하면서 각 필드 추출
-    for (var item in jsonList) {
-      // 1️. recipe_id를 추출하고 리스트에 추가
-      final id = item['custom_recipe_id'] as int;
-      customRecipeIds.add(id);
-
-      // 2️. recipe_name을 추출하고 리스트에 추가
-      customReceipeNames.add(item['custom_recipe_name']);
-
-      // 3️. 이미지 경로는 백엔드 데이터에 없으므로
-      // 프론트에서 정의한 imageMapping에서 recipe_id에 해당하는 경로를 찾아 추가
-      // 만약 매핑이 없다면 'default.jpg'를 기본값으로 설정
-      customRecipeImageUrls.add(customRecipeImageMapping[id] ?? 'default.jpg');
-
-      // 4. main_ingredient를 추출하고 리스트에 추가
-      customIngredients.add(item['custom_main_ingredient']);
+    for (var item in recipeJsonList) {
+      customRecipeIds.add(item['custom_recipe_id'] as int);
+      customReceipeNames.add(item['custom_recipe_name'] as String);
+      customIngredients.add(item['custom_main_ingredient'] as String);
     }
 
-    // MainDataDTO 객체 생성 및 반환
+    // 2) imageJsonList를 CustomImageDataDto 객체 리스트로 변환
+    final imageDtoList = imageJsonList
+        .map((json) => CustomImageDataDto.fromJson(json as Map<String, dynamic>))
+        .toList();
+
+    // 3) recipeIds 순서대로 매칭되는 imagePath를 찾아 recipeImageUrls에 추가
+    final recipeImageUrls = <String>[];
+    for (var id in customRecipeIds) {
+      final match = imageDtoList.firstWhere(
+            (imgDto) => imgDto.customRecipeId == id,
+        orElse: () => CustomImageDataDto(
+          customImageId: -1,
+          customRecipeId: id,
+          customImageName: 'default',
+          customImagePath: 'about:blank#blocked',
+        ),
+      );
+      recipeImageUrls.add(match.customImagePath);
+    }
+
     return CustomRecipeDataDTO(
-        recipeIds: customRecipeIds,
-        recipeNames: customReceipeNames,
-        recipeImageUrls: customRecipeImageUrls,
-        recipeIngredients: customIngredients
+      recipeIds: customRecipeIds,
+      recipeNames: customReceipeNames,
+      recipeImageUrls: recipeImageUrls,
+      recipeIngredients: customIngredients,
     );
   }
 }
@@ -70,15 +78,40 @@ class CustomRecipeDataDetailDto {
   // JSON -> DTO 변환
   // 서버에서 받아온 JSON 데이터를 DTO 객체로 변환하는 factory 메서드
   factory CustomRecipeDataDetailDto.fromJson(
-      Map<String, dynamic> json, List<dynamic> details, String imagePath) {
-    // details: 시즈닝 상세 정보 (List<Map> 형태)
-    final seasoningNames = details.map((e) => e['seasoning_name'] as String).toList();
-    final amounts = details.map((e) => (e['amount'] as num).toDouble()).toList();
+      Map<String, dynamic> json,
+      List<dynamic> details,
+      List<dynamic> imageJsonList,
+      ) {
+    // 1. 조미료 이름과 양 추출
+    final seasoningNames = details
+        .map((e) => e['seasoning_name'] as String)
+        .toList();
+    final amounts = details
+        .map((e) => (e['amount'] as num).toDouble())
+        .toList();
+
+    // 2. imageJsonList를 CustomImageDataDto 리스트로 변환
+    final imageDtoList = imageJsonList
+        .map((img) => CustomImageDataDto.fromJson(img as Map<String, dynamic>))
+        .toList();
+
+    // 3. recipeId와 매칭되는 imagePath 찾기
+    final currentId = json['recipe_id'] as int;
+    final match = imageDtoList.firstWhere(
+          (imgDto) => imgDto.customRecipeId == currentId,
+      orElse: () => CustomImageDataDto(
+        customImageId: -1,
+        customRecipeId: currentId,
+        customImageName: 'default',
+        customImagePath: 'default.jpg',
+      ),
+    );
+    final imagePath = match.customImagePath;
 
     return CustomRecipeDataDetailDto(
-      recipeId: json['custom_recipe_id'],
-      recipeName: json['custom_recipe_name'],
-      recipeImageUrl: imagePath, // 이미지 매핑 경로를 전달
+      recipeId: currentId,
+      recipeName: json['custom_recipe_id'] as String,
+      recipeImageUrl: imagePath,
       seasoningNames: seasoningNames,
       amounts: amounts,
     );

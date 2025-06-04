@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:taste_q/views/safe_images.dart';
 
 // 오늘의 팁 출력
 class SectionTipBar extends StatelessWidget {
@@ -26,7 +25,13 @@ class SectionTipBar extends StatelessWidget {
           SizedBox(height: 8.h),
           Row(
             children: [
-              safeImage('images/elec_oven.png', 120.w, 80.w),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8.r),
+                child: Image.asset(
+                  'images/elec_oven.png',
+                  width: 120.w, height: 80.h,
+                ),
+              ),
               SizedBox(width: 12.w),
               Expanded(
                 child: Text(
