@@ -3,7 +3,8 @@ import os
 from fastapi import UploadFile
 from database.connection import get_connection
 
-UPLOAD_DIR = "static/recipe_images"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # 현재 파일 기준 절대경로
+UPLOAD_DIR = os.path.join(BASE_DIR, "../../static/recipe_images")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 def save_recipe_image(recipe_id: int, image_name: str, image_file: UploadFile) -> int:
