@@ -15,7 +15,7 @@ def save_custom_recipe_image(custom_recipe_id: int, custom_image_name: str, imag
     with open(file_path, "wb") as f:
         f.write(image_file.file.read())
 
-    relative_path = f"/{file_path.replace(os.sep, '/')}"
+    relative_path = f"/static/custom_recipe_images/{filename}"
 
     conn = get_connection()
     try:
