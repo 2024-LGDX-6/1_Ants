@@ -8,7 +8,7 @@ import 'package:taste_q/models/recipe_mode.dart';
 import 'package:taste_q/providers/recipe_provider.dart';
 
 class RecipeController {
-  static const String baseUrl = "http://192.168.219.66:8000";
+  static const String baseUrl = "http://192.168.219.183:8000";
 
   // 특정 레시피ID로 레시피 및 시즈닝 데이터를 백엔드에서 받아 RecipeDataDTO 반환
   Future<RecipeDataDTO> getRecipeData(int recipeId, BuildContext context) async {
@@ -79,7 +79,8 @@ class RecipeController {
   }
 
   // RecipeModeSelector, SettingView에서 사용될 provider 메소드 (mode + multiplier)
-  void updateModeAndMultiplier(BuildContext context, RecipeMode newMode, int newMultiplier) {
+  void updateModeAndMultiplier(
+      BuildContext context, RecipeMode newMode, int newMultiplier) {
     final provider = Provider.of<RecipeProvider>(context, listen: false);
     provider.setMode(newMode);  // 모드 설정
     provider.setMultiplier(newMultiplier);  // 인분 수(multiplier) 설정

@@ -36,7 +36,7 @@ class STTController {
     return completer.future;
   }
 
-  static const String baseUrl = 'http://192.168.219.66:8000';
+  static const String baseUrl = 'http://192.168.219.183:8000';
 
   // 백엔드로 음성 인식 텍스트 전송 및 정제된 텍스트 반환
   Future<void> sendVoiceText(String voiceText) async {
