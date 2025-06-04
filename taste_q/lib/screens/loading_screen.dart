@@ -109,18 +109,27 @@ class _LoadingScreenState extends State<LoadingScreen>
     setState(() {
       _stage = 6;
     });
-    // BLE 명령 전송
+    // BLE 명령 전송 (소금이 있을 때만)
     final ble = Provider.of<BleProvider>(context, listen: false);
     try {
       if (ble.txCharacteristic != null) {
         debugPrint("TX characteristic UUID: ${ble.txCharacteristic?.uuid}");
-        await ble.txCharacteristic!.write(utf8.encode("M_ON"), withoutResponse: false);
-        debugPrint("BLE write command sent: M_ON");
+        List<String> seasoningNames = widget.seasoningName;
+        List<double> amounts = widget.amounts;
+        int saltIndex = seasoningNames.indexOf('소금');
+        if (saltIndex != -1) {
+          double amount = amounts[saltIndex];
+          String command = "M_ON_${amount.toStringAsFixed(1)}";
+          await ble.txCharacteristic!.write(utf8.encode(command), withoutResponse: false);
+          debugPrint("아두이노에 전송됨: $command");
+        } else {
+          debugPrint("소금 없음. 전송하지 않음.");
+        }
       } else {
         debugPrint("BLE 명령어 전송 생략됨 (txCharacteristic이 null)");
       }
     } catch (e) {
-      debugPrint("BLE 전송 실패: $e");
+      debugPrint("전송 중 오류: $e");
     }
     await Future.delayed(const Duration(milliseconds: 1500));
     if (mounted) {

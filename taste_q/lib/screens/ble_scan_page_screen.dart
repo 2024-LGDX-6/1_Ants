@@ -51,7 +51,7 @@ class _BleScanPageState extends State<BleScanPage> {
     _scanSubscription?.cancel();
     _scanSubscription = FlutterBluePlus.scanResults.listen((results) {
       setState(() {
-        scanResults = results;
+        scanResults = results.where((r) => r.device.localName == 'TasteQ').toList();
       });
     });
 
@@ -73,6 +73,9 @@ class _BleScanPageState extends State<BleScanPage> {
   void _connectToDevice(BluetoothDevice device) async {
     try {
       await device.connect(timeout: const Duration(seconds: 10));
+      setState(() {
+        connectedDevices.add(device);
+      });
       if (mounted) {
         // 연결된 기기 및 characteristic 저장
         final bleProvider = Provider.of<BleProvider>(context, listen: false);
@@ -83,6 +86,10 @@ class _BleScanPageState extends State<BleScanPage> {
           for (BluetoothCharacteristic c in service.characteristics) {
             if (c.properties.write) {
               bleProvider.setTxCharacteristic(c);
+              // Show feedback after successful connection
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("TasteQ 기기와 연결이 완료되었습니다.")),
+              );
               break;
             }
           }
@@ -145,6 +152,24 @@ class _BleScanPageState extends State<BleScanPage> {
                   foregroundColor: Colors.black,
                 ),
                 child: const Text("다시 검색"),
+              ),
+            if (connectedDevices.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Text(
+                      "현재 연결된 기기",
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                  ),
+                  ...connectedDevices.map((device) => ListTile(
+                    title: Text(device.localName.isNotEmpty ? device.localName : '(이름 없음)'),
+                    subtitle: Text(device.id.toString()),
+                    trailing: Text("연결됨", style: TextStyle(color: Colors.green)),
+                  )),
+                ],
               ),
             Expanded(
               child: ListView.builder(
