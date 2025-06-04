@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:taste_q/controllers/main_controller.dart';
-import 'package:taste_q/controllers/stt_controller.dart';
 import 'package:taste_q/views/front_appbar.dart';
 import 'package:taste_q/views/main_view.dart';
 import 'package:taste_q/views/setting_view.dart';
+import 'package:taste_q/views/stt_voice_input_popup.dart';
+
+import '../controllers/stt_controller.dart';
 
 class TasteqMainScreen extends StatefulWidget {
   const TasteqMainScreen({super.key});
@@ -18,7 +20,7 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
 
   // 음성인식 객체 및 컨트롤러
   final STTController _sttController = STTController();
-  String _recognizedText = "음성인식을 시작하세요.";
+  String _recognizedText = "음성인식 결과가 여기에 표시됩니다.";
 
   int _currentIndex = 0;
 
@@ -38,26 +40,39 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
     );
   }
 
-  // 음성인식 로직
-  void _startVoiceRecognition() async {
+  // FAB 위젯 클릭 시 음성인식 호출
+  void _onFabPressed() async {
+    // 1) 팝업 띄우기
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => STTVoiceInputPopup(controller: _sttController),
+    );
+
+    // 2) 팝업이 닫힌 뒤, 음성인식 결과를 받아 화면에 표시
+    //  startListening()의 Completer가 완료된 텍스트를 가져옵니다.
+    //  (VoiceRecognitionDialog 내에서 stopListening이 호출되면
+    //  startListening()의 Future가 완료됩니다.)
     try {
       final result = await _sttController.startListening();
       setState(() {
         _recognizedText = result;
+        print(_recognizedText);
       });
-      print("음성인식 결과: $result");
     } catch (e) {
       setState(() {
         _recognizedText = "음성인식 실패: $e";
       });
-      print("음성인식 오류: $e");
     }
   }
-
 
   @override
   void dispose() {
     _pageController.dispose(); // 메모리 누수 방지
+    // 화면을 벗어날 때 음성인식이 살아 있으면 중지
+    if (_sttController.isListening) {
+      _sttController.stopListening();
+    }
     super.dispose();
   }
 
@@ -96,7 +111,7 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
 
       // 음성인식 검색 버튼
       floatingActionButton: FloatingActionButton(
-        onPressed: _startVoiceRecognition,
+        onPressed: _onFabPressed,
         shape: const CircleBorder(),
         backgroundColor: Colors.white,
         child: const Icon(Icons.mic, color: Colors.black),
