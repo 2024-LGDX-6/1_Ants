@@ -62,9 +62,20 @@ class _STTVoiceInputPopupState extends State<STTVoiceInputPopup> {
   }
 
   /// “완료” 버튼: 음성인식 중지 후 현재까지 인식된 텍스트 반환
-  void _onDonePressed() {
+  void _onDonePressed() async {
     widget.controller.stopListening();
-    Navigator.of(context).pop<String?>(_recognizedText);
+    String resultText = _recognizedText;
+
+    // 서버에 보내 정제된 텍스트 받아오기
+    try {
+      String cleaned = await widget.controller.sendVoiceText(resultText);
+      Navigator.of(context).pop<String?>(cleaned);
+    } catch (e) {
+      Navigator.of(context).pop<String?>(null);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('서버 전송 오류: $e')),
+      );
+    }
   }
 
   @override

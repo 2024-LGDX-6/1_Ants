@@ -8,8 +8,13 @@ import 'package:taste_q/views/front_appbar.dart';
 
 class RecipeListScreen extends StatefulWidget {
   final RouteEntryType routeEntryType;
+  final String? searchQuery;
 
-  const RecipeListScreen({super.key, required this.routeEntryType});
+  const RecipeListScreen({
+    super.key,
+    required this.routeEntryType,
+    required this.searchQuery
+  });
 
   @override
   _RecipeListScreenState createState() => _RecipeListScreenState();
@@ -25,6 +30,8 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
   @override
   void initState() {
     super.initState();
+
+    // RouteEntryType에 따라 올바른 컨트롤러 인스턴스 생성
     switch (widget.routeEntryType) {
       case RouteEntryType.anotherDefault:
         controller = MainController();
@@ -33,8 +40,21 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
         controller = CustomRecipeController();
         break;
     }
+    // 전체 레시피 Future 로드
     _futureRecipes = controller.getAllRecipes();
+
+    // 검색 컨트롤러 초기화
     _searchController = TextEditingController();
+
+    // 음성인식 팝업에서 전달된 searchQuery가 있으면 미리 텍스트 설정
+    if (widget.searchQuery != null && widget.searchQuery!.isNotEmpty) {
+      _searchController.text = widget.searchQuery!;
+      _searchText = widget.searchQuery!.toLowerCase();
+    } else {
+      _searchText = '';
+    }
+
+    // 사용자 검색창을 수정할 때마다 _searchText 갱신
     _searchController.addListener(() {
       setState(() {
         _searchText = _searchController.text.toLowerCase();

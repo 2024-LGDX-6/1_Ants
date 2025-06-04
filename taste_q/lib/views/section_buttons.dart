@@ -26,7 +26,8 @@ class SectionButtons extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (context) => RecipeListScreen(
-                        routeEntryType: RouteEntryType.customRecipeList
+                        searchQuery: null,
+                        routeEntryType: RouteEntryType.customRecipeList,
                     ),
                 ),
               );
@@ -60,6 +61,7 @@ class SectionButtons extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => RecipeListScreen(
+                      searchQuery: null,
                       routeEntryType: RouteEntryType.anotherDefault
                   ),
                 ),

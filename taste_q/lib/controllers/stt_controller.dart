@@ -59,21 +59,21 @@ class STTController {
   bool get isListening => _speech.isListening;
 
 
-  // 백엔드로 음성 인식 텍스트 전송 및 정제된 텍스트 반환
+  // 백엔드 서버 주소
   static const String baseUrl = 'http://192.168.219.183:8000';
 
-  // Future<void> sendVoiceText(String voiceText) async {
-  //   final response = await http.post(
-  //     Uri.parse('$baseUrl/speech-to-text'),
-  //     headers: {'Content-Type': 'application/json'},
-  //     body: jsonEncode({'voice_text': voiceText}),
-  //   );
-  //   if (response.statusCode != 200) {
-  //     throw Exception('서버 전송 실패: ${response.statusCode}');
-  //   } else {
-  //     final jsonResponse = jsonDecode(response.body);
-  //     return jsonResponse['cleanedText'] ?? '';
-  //   }
-  // }
+  /// 음성인식 결과를 서버로 전송하고, 서버가 반환한 정제된 텍스트를 리턴
+  Future<String> sendVoiceText(String voiceText) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/speech-to-text'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'voice_text': voiceText}),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('서버 전송 실패: ${response.statusCode}');
+    }
+    final jsonResponse = jsonDecode(response.body);
+    return jsonResponse['cleaned_text'] ?? '';
+  }
 
 }

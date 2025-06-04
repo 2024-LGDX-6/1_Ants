@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taste_q/controllers/main_controller.dart';
+import 'package:taste_q/models/route_entry_type.dart';
+import 'package:taste_q/screens/recipe_list_screen.dart';
 import 'package:taste_q/views/front_appbar.dart';
 import 'package:taste_q/views/main_view.dart';
 import 'package:taste_q/views/setting_view.dart';
@@ -20,7 +22,7 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
 
   // 음성인식 객체 및 컨트롤러
   final STTController _sttController = STTController();
-  String _recognizedText = "음성인식 결과가 여기에 표시됩니다.";
+  String _displayText = "여기에 음성인식 결과가 표시됩니다.";
 
   int _currentIndex = 0;
 
@@ -43,20 +45,32 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
   /// FAB 클릭 시 호출
   void _onFabPressed() async {
     // 1) 팝업 띄우기 및 결과 받기
-    final result = await showDialog<String?>(
+    final cleanedText = await showDialog<String?>(
       context: context,
       barrierDismissible: false,
       builder: (_) => STTVoiceInputPopup(controller: _sttController),
     );
 
     // 2) 팝업이 닫힌 뒤: result가 null이 아닐 때만 상태 업데이트
-    if (result != null) {
+    // 2) 팝업이 닫힌 뒤: cleanedText가 null이 아니면
+    if (cleanedText != null && cleanedText.isNotEmpty) {
+      // 화면에 잠시 표시(선택 사항)
       setState(() {
-        _recognizedText = result;
+        _displayText = cleanedText;
+        print(_displayText);
       });
-      print(_recognizedText);
+      // 3) 레시피 목록 화면으로 이동하면서 검색쿼리 전달
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => RecipeListScreen(
+            searchQuery: cleanedText,
+            routeEntryType: RouteEntryType.anotherDefault,
+          ),
+        ),
+      );
+    } else {
+      // null이거나 빈 문자열이라면 아무 동작 안 함
     }
-    // null이면 아무 동작 없이 그대로 유지
   }
 
 
