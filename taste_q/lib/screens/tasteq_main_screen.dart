@@ -40,37 +40,30 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
     );
   }
 
-  // FAB 위젯 클릭 시 음성인식 호출
+  /// FAB 클릭 시 호출
   void _onFabPressed() async {
-    // 1) 팝업 띄우기
-    await showDialog(
+    // 1) 팝업 띄우기 및 결과 받기
+    final result = await showDialog<String?>(
       context: context,
       barrierDismissible: false,
       builder: (_) => STTVoiceInputPopup(controller: _sttController),
     );
 
-    // 2) 팝업이 닫힌 뒤, 음성인식 결과를 받아 화면에 표시
-    //  startListening()의 Completer가 완료된 텍스트를 가져옵니다.
-    //  (VoiceRecognitionDialog 내에서 stopListening이 호출되면
-    //  startListening()의 Future가 완료됩니다.)
-    try {
-      final result = await _sttController.startListening();
+    // 2) 팝업이 닫힌 뒤: result가 null이 아닐 때만 상태 업데이트
+    if (result != null) {
       setState(() {
         _recognizedText = result;
-        print(_recognizedText);
       });
-    } catch (e) {
-      setState(() {
-        _recognizedText = "음성인식 실패: $e";
-      });
+      print(_recognizedText);
     }
+    // null이면 아무 동작 없이 그대로 유지
   }
+
 
   @override
   void dispose() {
     _pageController.dispose(); // 메모리 누수 방지
-    // 화면을 벗어날 때 음성인식이 살아 있으면 중지
-    if (_sttController.isListening) {
+    if (_sttController.isListening) { // 화면을 벗어날 때 음성인식이 살아 있으면 중지
       _sttController.stopListening();
     }
     super.dispose();
