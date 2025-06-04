@@ -49,7 +49,7 @@ class SectionRecommended extends StatelessWidget {
                         ),
                       );
                     },
-                    child: safeImage("images/foods/${recipeImages[index]}", 90.w, 80.w),
+                    child: safeImage(recipeImages[index], 90.w, 80.w),
                   ),
                   SizedBox(height: 4.h),
                   Text(

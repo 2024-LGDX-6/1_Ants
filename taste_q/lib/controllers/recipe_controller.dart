@@ -3,63 +3,91 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:taste_q/controllers/dto/recipe_data_dto.dart';
-import 'package:taste_q/models/image_mapping.dart';
 import 'package:taste_q/models/recipe_mode.dart';
 import 'package:taste_q/providers/recipe_provider.dart';
+
+import 'dto/image_data_dto.dart';
 
 class RecipeController {
   static const String baseUrl = "http://192.168.219.183:8000";
 
-  // 특정 레시피ID로 레시피 및 시즈닝 데이터를 백엔드에서 받아 RecipeDataDTO 반환
+  /// 특정 레시피ID로 레시피, 시즈닝, 전체 이미지 리스트를 받아
+  /// 해당 recipeId에 맞는 이미지 하나를 찾아 RecipeDataDTO 반환
   Future<RecipeDataDTO> getRecipeData(int recipeId, BuildContext context) async {
     // 1. 레시피 기본 정보 요청
-    final recipeResponse = await http.get(Uri.parse(
-        '$baseUrl/recipes/$recipeId'));
+    final recipeResponse = await http.get(Uri.parse('$baseUrl/recipes/$recipeId'));
     if (recipeResponse.statusCode != 200) {
-      throw Exception('레시피 정보를 불러올 수 없습니다.');
+      throw Exception('레시피 정보를 불러올 수 없습니다. (${recipeResponse.statusCode})');
     }
-    final recipeJson = json.decode(recipeResponse.body);
+    final recipeJson = json.decode(recipeResponse.body) as Map<String, dynamic>;
 
     // 2. 레시피 시즈닝 상세정보 요청
-    final detailResponse = await http.get(Uri.parse(
-        '$baseUrl/recipes/$recipeId/seasoning-details'));
+    final detailResponse =
+    await http.get(Uri.parse('$baseUrl/recipes/$recipeId/seasoning-details'));
     if (detailResponse.statusCode != 200) {
-      throw Exception('레시피 조미료 정보를 불러올 수 없습니다.');
+      throw Exception('레시피 조미료 정보를 불러올 수 없습니다. (${detailResponse.statusCode})');
     }
-    final List<dynamic> detailJson = json.decode(detailResponse.body);
+    final List<dynamic> detailJson = json.decode(detailResponse.body) as List<dynamic>;
 
-    // 3. 이미지 경로 매핑
-    final imagePath = recipeImageMapping[recipeId] ?? 'default.jpg';
+    // 3. “전체 레시피 이미지” 요청 (List<dynamic> 형태로 반환됨)
+    final imageAllResponse = await http.get(Uri.parse('$baseUrl/recipe-image/all'));
+    if (imageAllResponse.statusCode != 200) {
+      throw Exception(
+          '전체 이미지 정보를 불러올 수 없습니다. (${imageAllResponse.statusCode})');
+    }
+    final List<dynamic> imageJsonList = json.decode(imageAllResponse.body) as List<dynamic>;
 
-    // 4. 현재 모드와 인분 수 가져오기 (Provider)
-    final mode = Provider.of<RecipeProvider>(context, listen: false).mode;
-    final multiplier = Provider.of<RecipeProvider>(context, listen: false).multiplier;
+    // 4. imageJsonList를 ImageDataDto 리스트로 변환
+    final imageDtoList = imageJsonList
+        .map((json) => ImageDataDto.fromJson(json as Map<String, dynamic>))
+        .toList();
 
-    // 5. 모드와 인분에 따른 amounts 연산 후 변환
+    // 5. 전체 이미지 중 현재 recipeId와 매칭되는 항목을 찾음
+    final match = imageDtoList.firstWhere(
+          (imgDto) => imgDto.recipeId == recipeId,
+      orElse: () => ImageDataDto(
+        imageId: -1,
+        recipeId: recipeId,
+        imageName: 'default',
+        imagePath: 'about:blank#blocked',
+      ),
+    );
+    final String imagePath = match.imagePath;
+
+    // 6. 현재 모드와 인분 수 가져오기 (Provider)
+    final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
+    final mode = recipeProvider.mode;
+    final multiplier = recipeProvider.multiplier;
+
+    // 7. 모드와 인분에 따른 amounts 연산 후 변환
     final modifiedAmounts = detailJson.map((e) {
       double originalAmount = (e['amount'] as num).toDouble();
       switch (mode) {
         case RecipeMode.wellness:
-          originalAmount -= originalAmount * 0.1;  // 웰빙모드
+          originalAmount -= originalAmount * 0.1; // 웰빙모드: 10% 감량
           break;
         case RecipeMode.gourmet:
-          originalAmount += originalAmount * 0.1;  // 미식모드
+          originalAmount += originalAmount * 0.1; // 미식모드: 10% 증가
           break;
-        case RecipeMode.standard: // 표준모드: 그대로
-          break;
+        case RecipeMode.standard:
+          break; // 표준모드: 그대로
       }
-      originalAmount *= multiplier;  // multiplier 곱셈은 마지막에
+      originalAmount *= multiplier; // 인분수 곱셈
       return originalAmount;
     }).toList();
 
-    // 6. RecipeDataDTO 반환 (amounts를 변환값으로 교체)
+    // 8. 조미료 이름 리스트 추출
+    final seasoningNames =
+    detailJson.map((e) => e['seasoning_name'] as String).toList();
+
+    // 9. RecipeDataDTO 생성 후 반환
     return RecipeDataDTO(
-      recipeId: recipeJson['recipe_id'],
-      recipeName: recipeJson['recipe_name'],
+      recipeId: recipeJson['recipe_id'] as int,
+      recipeName: recipeJson['recipe_name'] as String,
       recipeImageUrl: imagePath,
-      seasoningNames: detailJson.map((e) => e['seasoning_name'] as String).toList(),
+      seasoningNames: seasoningNames,
       amounts: modifiedAmounts,
-      recipeLink: recipeJson['recipe_link'],
+      recipeLink: recipeJson['recipe_link'] as String,
     );
   }
 

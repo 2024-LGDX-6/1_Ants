@@ -6,6 +6,8 @@ import 'package:taste_q/models/route_entry_type.dart';
 import 'package:taste_q/screens/recipe_data_screen.dart';
 import 'package:taste_q/views/front_appbar.dart';
 
+import '../models/base_url.dart';
+
 class RecipeListScreen extends StatefulWidget {
   final RouteEntryType routeEntryType;
   final String? searchQuery;
@@ -21,6 +23,8 @@ class RecipeListScreen extends StatefulWidget {
 }
 
 class _RecipeListScreenState extends State<RecipeListScreen> {
+  String baseUrl = BaseUrl.baseUrl;
+
   late Future<dynamic> _futureRecipes; // 반환 타입 dynamic으로 통일
   late TextEditingController _searchController;
   String _searchText = '';
@@ -124,8 +128,8 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                         child: ListTile(
                           leading: ClipRRect(
                             borderRadius: BorderRadius.circular(8.r),
-                            child: Image.asset(
-                              "images/foods/${recipes.recipeImageUrls[index]}",
+                            child: Image.network(
+                              "$baseUrl${recipes.recipeImageUrls[index]}",
                               width: 60.w,
                               height: 50.h,
                               fit: BoxFit.cover,

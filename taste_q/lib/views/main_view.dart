@@ -27,9 +27,7 @@ class MainView extends StatelessWidget {
           return Center(child: Text('오류: ${snapshot.error}'));
         } else if (!snapshot.hasData) {
           // 데이터가 없는 경우 처리
-          return Center(
-              child: Text('추천 레시피를 불러올 수 없습니다.'),
-          );
+          return Center(child: Text('추천 레시피를 불러올 수 없습니다.'));
         } else {
           // 데이터가 정상적으로 로드된 경우
           final MainDataDTO dto = snapshot.data!;
@@ -38,7 +36,6 @@ class MainView extends StatelessWidget {
           final List<String> recipeImages = dto.recipeImageUrls;
 
           // 하드코딩 데이터 반환
-          final feedback = controller.getLastRecipeFeedback();
           final tip = controller.getRandomTip();
 
           return SingleChildScrollView(
@@ -47,7 +44,12 @@ class MainView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 30.h),
-                Center(child: safeImage('images/tasteQ.png', 120.w, 80.h)),
+                Center(
+                  child: Image.asset(
+                    'images/tasteQ.png',
+                    width: 120.w, height: 80.h,
+                  ),
+                ),
                 SizedBox(height: 30.h),
                 SectionRecommended(
                   recipeIds: recipeIds,

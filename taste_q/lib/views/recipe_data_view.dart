@@ -106,7 +106,7 @@ class _RecipeDataViewState extends State<RecipeDataView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 40.h),
-          Center(child: safeImage("images/foods/$recipeImageUrl", 300.w, 200.h)),
+          Center(child: safeImage(recipeImageUrl, 300.w, 200.h)),
           SizedBox(height: 15.h),
           Center(
             child: Text(

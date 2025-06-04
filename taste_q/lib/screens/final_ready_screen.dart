@@ -91,7 +91,7 @@ class FinalReadyScreen extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: safeImage(
-                  "images/foods/$recipeImageUrl",
+                  recipeImageUrl,
                   280.w, 200.h,
                 ),
               ),

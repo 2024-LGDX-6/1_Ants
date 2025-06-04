@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taste_q/controllers/main_controller.dart';
+import 'package:taste_q/controllers/stt_controller.dart';
 import 'package:taste_q/models/route_entry_type.dart';
 import 'package:taste_q/screens/recipe_list_screen.dart';
 import 'package:taste_q/views/front_appbar.dart';
@@ -7,7 +8,6 @@ import 'package:taste_q/views/main_view.dart';
 import 'package:taste_q/views/setting_view.dart';
 import 'package:taste_q/views/stt_voice_input_popup.dart';
 
-import '../controllers/stt_controller.dart';
 
 class TasteqMainScreen extends StatefulWidget {
   const TasteqMainScreen({super.key});

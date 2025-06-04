@@ -1,4 +1,6 @@
 // 반환용 DTO 클래스 정의
+import 'package:taste_q/controllers/dto/image_data_dto.dart';
+
 class RecipeDataDTO {
   final int recipeId;
   final String recipeName;
@@ -17,21 +19,46 @@ class RecipeDataDTO {
     required this.recipeLink,
   });
 
-  // JSON -> DTO 변환
-  // 서버에서 받아온 JSON 데이터를 DTO 객체로 변환하는 factory 메서드
+
+  /// details: seasoning 상세 정보 리스트
   factory RecipeDataDTO.fromJson(
-      Map<String, dynamic> json, List<dynamic> details, String imagePath) {
-    // details: 시즈닝 상세 정보 (List<Map> 형태)
-    final seasoningNames = details.map((e) => e['seasoning_name'] as String).toList();
-    final amounts = details.map((e) => (e['amount'] as num).toDouble()).toList();
+      Map<String, dynamic> json,
+      List<dynamic> details,
+      List<dynamic> imageJsonList,
+      ) {
+    // 1. 조미료 이름과 양 추출
+    final seasoningNames = details
+        .map((e) => e['seasoning_name'] as String)
+        .toList();
+    final amounts = details
+        .map((e) => (e['amount'] as num).toDouble())
+        .toList();
+
+    // 2. imageJsonList를 ImageDataDto 리스트로 변환
+    final imageDtoList = imageJsonList
+        .map((img) => ImageDataDto.fromJson(img as Map<String, dynamic>))
+        .toList();
+
+    // 3. recipeId와 매칭되는 imagePath 찾기
+    final currentId = json['recipe_id'] as int;
+    final match = imageDtoList.firstWhere(
+          (imgDto) => imgDto.recipeId == currentId,
+      orElse: () => ImageDataDto(
+        imageId: -1,
+        recipeId: currentId,
+        imageName: 'default',
+        imagePath: 'default.jpg',
+      ),
+    );
+    final imagePath = match.imagePath;
 
     return RecipeDataDTO(
-      recipeId: json['recipe_id'],
-      recipeName: json['recipe_name'],
-      recipeImageUrl: imagePath, // 이미지 매핑 경로를 전달
+      recipeId: currentId,
+      recipeName: json['recipe_name'] as String,
+      recipeImageUrl: imagePath,
       seasoningNames: seasoningNames,
       amounts: amounts,
-      recipeLink: json['recipe_link'],
+      recipeLink: json['recipe_link'] as String,
     );
   }
 

@@ -62,7 +62,7 @@ class SectionHistory extends StatelessWidget {
                   SizedBox(height: 10.h),
                   Row(
                     children: [
-                      safeImage('images/foods/default.jpg', 130.w, 80.w),
+                      safeImage(cookLog.recipeImage, 130.w, 80.w),
                       SizedBox(width: 18.w),
                       Expanded(  // 텍스트가 넘치지 않도록 Expanded() 활용
                         child: Text(

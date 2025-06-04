@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:taste_q/models/base_url.dart';
+
+String baseUrl = BaseUrl.baseUrl;
 
 // 이미지 출력 위젯 메소드
-Widget safeImage(String assetPath, double width, double height, {
+Widget safeImage(String imagePath, double width, double height, {
   double borderRadius = 8.0,
   BoxFit fit = BoxFit.cover,
 }) {
   return ClipRRect(
     borderRadius: BorderRadius.circular(borderRadius.r),
-    child: Image.asset(
-      assetPath,
+    child: Image.network(
+      "$baseUrl$imagePath",
       width: width,
       height: height,
       fit: fit,

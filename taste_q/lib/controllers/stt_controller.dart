@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
+import '../models/base_url.dart';
+
 class STTController {
   late final stt.SpeechToText _speech;
   bool isInitialized = false;
@@ -60,7 +62,7 @@ class STTController {
 
 
   // 백엔드 서버 주소
-  static const String baseUrl = 'http://192.168.219.183:8000';
+  String baseUrl = BaseUrl.baseUrl;
 
   /// 음성인식 결과를 서버로 전송하고, 서버가 반환한 정제된 텍스트를 리턴
   Future<String> sendVoiceText(String voiceText) async {
