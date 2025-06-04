@@ -2,9 +2,9 @@ import os
 from fastapi import UploadFile
 from database.connection import get_connection
 
-# 이미지가 저장될 절대 경로 (예: C:/myproject/static/custom_recipe_images)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # 현재 파일 기준 절대경로
-UPLOAD_DIR = os.path.join(BASE_DIR, "../../static/custom_recipe_images")
+# ✅ 상대 경로 기반 저장 디렉토리 설정 (프로젝트 루트 기준)
+STATIC_SUBDIR = "static/custom_recipe_images"
+UPLOAD_DIR = os.path.join(os.getcwd(), STATIC_SUBDIR)
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 def save_custom_recipe_image(custom_recipe_id: int, custom_image_name: str, image_file: UploadFile) -> int:
@@ -15,7 +15,8 @@ def save_custom_recipe_image(custom_recipe_id: int, custom_image_name: str, imag
     with open(file_path, "wb") as f:
         f.write(image_file.file.read())
 
-    relative_path = f"/{file_path.replace(os.sep, '/')}"
+    # ✅ DB에는 상대 경로 저장 (예: /static/custom_recipe_images/2.jpg)
+    relative_path = f"/{STATIC_SUBDIR}/{filename}".replace("\\", "/")
 
     conn = get_connection()
     try:
