@@ -159,12 +159,10 @@ class RecipeImageResponse(BaseModel):
 class CustomRecipeImageResponse(BaseModel):
     custom_image_id: int
     custom_recipe_id: int
-    custom_recipe_name: str
+    custom_recipe_name: str  # JOIN된 결과
     custom_image_name: str
-    custom_image_path: str  # ✅ 파일 경로 추가
+    custom_image_path: str
 
-    class Config:
-        from_attributes = True
 
 
 
