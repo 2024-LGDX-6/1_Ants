@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:taste_q/controllers/dto/cook_log_data_dto.dart';
 
 class CookLogController {
-  static const String baseUrl = "http://192.168.219.66:8000";
+  static const String baseUrl = "http://192.168.219.183:8000";
 
   // 전체 요리기록에서 마지막 기록 불러오기
   Future<List<CookLogDataDTO>> getLastCookLog() async {
