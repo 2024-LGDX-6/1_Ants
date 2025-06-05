@@ -2,61 +2,84 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_audio_capture/flutter_audio_capture.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../models/base_url.dart';
 
 /// STTController
 ///
-/// • FlutterAudioCapture.init() → _audioCapture.start() 로 오디오 캡처를 시작하고,
-///   PCM(16kHz, 16bit) 형식으로 변환하여 WebSocket으로 FastAPI 서버에 전송합니다.
-/// • 서버가 보내오는 JSON 메시지 "type":"interim"/"type":"final" 을 수신하며,
-///   "final" 텍스트가 오면 Future를 완료합니다.
+/// • FlutterAudioCapture를 통해 마이크에서 실시간 오디오를 캡처할 때,
+///   기본적으로 Float32List 포맷으로 전달됩니다. 이를 16-bit PCM LINEAR16(Int16)으로
+///   변환하여 WebSocket으로 FastAPI 서버에 전송합니다.
+/// • sendVoiceText()가 호출되면:
+///   1) 마이크 권한 요청
+///   2) FlutterAudioCapture.init() → start(listener, onError, sampleRate, bufferSize)
+///   3) 서버로 PCM 바이너리 전송
+///   4) 서버에서 "type":"final" 메시지를 받을 때 Future<String>을 완료
 ///
-/// • sendCompleteSignal(): “##END##” 신호를 서버에 보내 최종 스트리밍을 알립니다.
-/// • stopStreaming(): 스트리밍을 즉시 중단하고 WebSocket을 닫습니다.
+/// • sendCompleteSignal(): “##END##” 신호를 서버에 보내어
+///   최종 음성 스트리밍 종료를 알립니다.
+/// • stopStreaming(): 즉시 오디오 캡처와 WebSocket 연결을 종료합니다.
 class STTController {
   final FlutterAudioCapture _audioCapture = FlutterAudioCapture();
   late WebSocketChannel _channel;
 
   bool _isStreaming = false;
-
-  /// 최종 텍스트가 도착하면 완료되는 Completer
   Completer<String>? _resultCompleter;
 
-  /// ❶ 마이크 캡처 초기화 → 오디오 스트리밍 → 서버 전송 → 최종 텍스트 반환
+  /// ◉ 마이크 권한 요청 (비동기)
+  Future<bool> _requestMicrophonePermission() async {
+    final status = await Permission.microphone.status;
+    if (status.isGranted) return true;
+    final result = await Permission.microphone.request();
+    return result.isGranted;
+  }
+
+  /// ○ 오디오 스트리밍 → 서버 전송 → 최종 텍스트 반환
   ///
-  /// 서버로부터 "type":"final" 메시지를 받으면 Future<String> 을 완료하고,
-  /// 내부적으로 오디오 캡처와 WebSocket을 정리합니다.
+  /// • start() 전에 반드시 _audioCapture.init() 호출
+  /// • sampleRate와 bufferSize를 STT와 일치시킵니다.
   Future<String> sendVoiceText() async {
     if (_isStreaming) {
       return Future.error('이미 오디오 스트리밍이 진행 중입니다.');
     }
 
+    // 1) 마이크 권한 확인
+    bool micGranted = await _requestMicrophonePermission();
+    if (!micGranted) {
+      return Future.error('마이크 권한이 없습니다.');
+    }
+
     _resultCompleter = Completer<String>();
     _isStreaming = true;
 
-    // ───────────────────────────────────────────────────────────────
-    // 1) FlutterAudioCapture 초기화
+    // ────────────────────────────────────────────────────────────────────
+    // 2) FlutterAudioCapture 초기화
     try {
       await _audioCapture.init();
+      print('[STTController] AudioCapture initialized successfully.');
     } catch (e) {
       _isStreaming = false;
       return Future.error('오디오 캡처 초기화 실패: $e');
     }
-    // ───────────────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────────────────────────
 
-    // 2) WebSocket 연결
+    // ────────────────────────────────────────────────────────────────────
+    // 3) WebSocket 연결
     final httpUrl = BaseUrl.baseUrl; // 예: "http://api.example.com"
     final wsUrl = httpUrl.replaceFirst(RegExp(r'^http'), 'ws') + '/ws/stt';
+    print('[STTController] Connecting to WebSocket at $wsUrl');
     _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
+    // ────────────────────────────────────────────────────────────────────
 
-    // 3) 서버 메시지 수신: interim/final 처리 또는 에러 문자열 처리
+    // ────────────────────────────────────────────────────────────────────
+    // 4) 서버 메시지 수신: interim/final or 비 JSON 문자열 처리
     _channel.stream.listen(
           (dynamic message) {
-        // 서버가 보낸 메시지가 String인 경우만 처리
         if (message is String) {
-          // “ERROR: …” 로 시작하는 문자열이면 예외 처리
+          // 서버가 “ERROR: …” 문자열만 전송한 경우
           if (message.startsWith('ERROR')) {
+            print('[STTController][WebSocket] Received error string: $message');
             if (!_resultCompleter!.isCompleted) {
               _resultCompleter!.completeError(message);
             }
@@ -67,16 +90,19 @@ class STTController {
           // JSON 파싱 시도
           try {
             final Map<String, dynamic> data = jsonDecode(message);
+            final String type = data['type'] as String? ?? '';
 
-            // 중간 결과(interim) 처리 (필요하다면 UI 반영)
-            if (data['type'] == 'interim') {
-              // finalText가 길어지는 중간 단계, 무시하거나 로깅만 함
+            if (type == 'interim') {
+              // 중간 결과
+              final String interimText = data['text'] as String? ?? '';
+              print('[STTController][WebSocket][interim] $interimText');
               return;
             }
 
-            // 최종 결과(final)
-            if (data['type'] == 'final') {
+            if (type == 'final') {
+              // 최종 결과
               final String finalText = data['text'] as String? ?? '';
+              print('[STTController][WebSocket][final] $finalText');
               if (!_resultCompleter!.isCompleted) {
                 _resultCompleter!.complete(finalText);
               }
@@ -84,10 +110,11 @@ class STTController {
               return;
             }
           } on FormatException {
-            // JSON 파싱 실패: 서버가 보낸 데이터가 JSON이 아닐 수 있음. 무시.
+            // JSON 파싱 실패(비 JSON 메시지) → 그냥 무시
+            print('[STTController][WebSocket] Received non-JSON text: $message');
             return;
           } catch (e) {
-            // 예기치 않은 오류
+            print('[STTController][WebSocket] JSON 처리 오류: $e');
             if (!_resultCompleter!.isCompleted) {
               _resultCompleter!.completeError('서버 메시지 처리 오류: $e');
             }
@@ -97,12 +124,14 @@ class STTController {
         }
       },
       onError: (error) {
+        print('[STTController][WebSocket] Error: $error');
         if (!_resultCompleter!.isCompleted) {
           _resultCompleter!.completeError('WebSocket 에러: $error');
         }
         _stopInternal();
       },
       onDone: () {
+        print('[STTController][WebSocket] Connection closed');
         if (!_resultCompleter!.isCompleted) {
           _resultCompleter!.completeError('WebSocket 연결이 종료되었습니다.');
         }
@@ -110,17 +139,23 @@ class STTController {
       },
       cancelOnError: true,
     );
+    // ────────────────────────────────────────────────────────────────────
 
-    // 4) 오디오 캡처 시작: Float32List 등을 받아 16-bit PCM으로 변환 → WebSocket 전송
+    // ────────────────────────────────────────────────────────────────────
+    // 5) 오디오 캡처 시작: 기본 포맷(Float32List 등)을 Int16List(LINEAR16)으로 변환 후 전송
+    //
+    //    • sampleRate:16000, bufferSize:2048~4096 권장
+    //
     _audioCapture
         .start(
-      // 4-1) listener(dynamic obj): 캡처된 오디오 버퍼 처리
+      // listener(dynamic obj): 캡처된 오디오 버퍼 처리
           (dynamic obj) {
         if (!_isStreaming) return;
 
         Uint8List bytesToSend;
+        int incomingLength = 0;
 
-        // (1) Float32List → Int16List(LINEAR16) 변환
+        // Float32List → Int16List(Line ar16) 변환
         if (obj is Float32List) {
           final Float32List floatBuffer = obj;
           final int len = floatBuffer.length;
@@ -131,70 +166,90 @@ class STTController {
                 (floatBuffer[i] * 32767).clamp(-32768, 32767).toInt();
           }
           bytesToSend = Uint8List.view(int16Buffer.buffer);
+          incomingLength = bytesToSend.length;
+          print('[STTController][AudioListener] Float32List → Int16List, length=$incomingLength');
         }
-        // (2) Int16List → Uint8List 뷰
+        // Int16List → Uint8List 뷰
         else if (obj is Int16List) {
           bytesToSend = Uint8List.view(obj.buffer);
+          incomingLength = bytesToSend.length;
+          print('[STTController][AudioListener] Received Int16List, length=$incomingLength');
         }
-        // (3) Uint8List 그대로 사용
+        // Uint8List (이미 PCM 바이트)
         else if (obj is Uint8List) {
           bytesToSend = obj;
+          incomingLength = bytesToSend.length;
+          print('[STTController][AudioListener] Received Uint8List, length=$incomingLength');
         }
-        // (4) ByteBuffer → Uint8List
+        // ByteBuffer → Uint8List
         else if (obj is ByteBuffer) {
           bytesToSend = Uint8List.view(obj);
-        } else {
-          // 지원하지 않는 타입은 무시
+          incomingLength = bytesToSend.length;
+          print('[STTController][AudioListener] Received ByteBuffer, length=$incomingLength');
+        }
+        // 그 외 타입은 무시
+        else {
+          print('[STTController][AudioListener] Unsupported buffer type: ${obj.runtimeType}');
           return;
         }
 
-        // 4-2) WebSocket에 바이너리(PCM) 전송
+        // 버퍼 크기가 640 byte 미만이면 경고
+        if (incomingLength < 640) {
+          print(
+              '[STTController][WARN] Received too-small buffer: $incomingLength bytes. '
+                  '정상적인 16kHz PCM은 640~1280 byte 이상이어야 합니다.'
+          );
+        }
+
+        // WebSocket으로 바이너리 전송
         _channel.sink.add(bytesToSend);
       },
 
-      // 4-3) onError: 캡처 중 오류 발생 시
+      // onError(Object e): 캡처 중 예외 발생 시 처리
           (Object e) {
         if (!_isStreaming) return;
+        print('[STTController][AudioListener] Error: $e');
         if (!_resultCompleter!.isCompleted) {
           _resultCompleter!.completeError('오디오 캡처 오류: $e');
         }
         _stopInternal();
       },
 
-      // 샘플레이트 / 버퍼 크기
+      // sampleRate:16kHz, bufferSize:2048 (권장: 2048~4096)
       sampleRate: 16000,
-      bufferSize: 3000,
+      bufferSize: 2048,
     )
+        .then((_) {
+      print('[STTController][AudioListener] start() succeeded.');
+    })
         .catchError((e) {
-      // start() 자체 실패 시
       if (!_resultCompleter!.isCompleted) {
         _resultCompleter!.completeError('오디오 캡처 시작 실패: $e');
       }
       _stopInternal();
     });
+    // ────────────────────────────────────────────────────────────────────
 
-    // 최종 텍스트가 오면 complete되므로 이 Future를 반환
     return _resultCompleter!.future;
   }
 
-  /// ❷ “##END##” 종료 신호를 서버로 전송
-  ///
-  /// 백엔드가 이 신호를 받으면, 지금까지 수신된 오디오를 처리해 최종 텍스트를 보냅니다.
+  /// ○ “##END##” 종료 신호를 서버로 전송
   void sendCompleteSignal() {
     if (_isStreaming) {
+      print('[STTController] Sending END signal to server.');
       _channel.sink.add("##END##");
     }
   }
 
-  /// ❸ 외부에서 스트리밍을 중단(취소)하고 싶을 때 호출
+  /// ○ 외부에서 스트리밍 중단(취소) 요청
   Future<void> stopStreaming() async {
     if (_isStreaming) {
-      // 간단히 내부 정리 로직만 실행
+      print('[STTController] stopStreaming() called.');
       _stopInternal();
     }
   }
 
-  /// ❹ 내부 정리: 스트리밍 플래그 해제, 오디오 캡처 중지, WebSocket 종료
+  /// ○ 내부 정리: 스트리밍 플래그 해제, 오디오 캡처 중지, WebSocket 종료
   void _stopInternal() {
     if (_isStreaming) {
       _isStreaming = false;
@@ -202,11 +257,12 @@ class STTController {
       try {
         _channel.sink.close();
       } catch (_) {
-        // 이미 닫혔거나 예외가 발생해도 무시
+        // 이미 닫혔거나 예외 발생 시 무시
       }
+      print('[STTController] Streaming stopped and resources released.');
     }
   }
 
-  /// ◉ 현재 스트리밍 중인지 여부 확인
+  /// ○ 현재 스트리밍 중인지 여부
   bool get isStreaming => _isStreaming;
 }
