@@ -97,25 +97,27 @@ async def handle_stt_stream(websocket: WebSocket):
     async def request_gen():
         while True:
             try:
-                data = await websocket.receive_bytes()
+                data = await asyncio.wait_for(websocket.receive_bytes(), timeout=15.0)
                 yield speech.StreamingRecognizeRequest(audio_content=data)
+            except asyncio.TimeoutError:
+                print("🛑 무음 상태로 15초 경과 → 스트림 종료")
+                break
             except Exception as e:
-                print("WebSocket receive error:", e)
+                print("❌ WebSocket receive error:", e)
                 break
 
     try:
         responses = client.streaming_recognize(config=streaming_config, requests=request_gen())
         for response in responses:
-            transcript = result.alternatives[0].transcript
-
-            # 🧠 STEP 3: interim 결과 전송
-            await websocket.send_text(json.dumps({
-                "type": "interim",
-                "text": transcript
-            }))
-
-
             for result in response.results:
+                transcript = result.alternatives[0].transcript
+
+                # 🧠 STEP 3: interim 결과 전송
+                await websocket.send_text(json.dumps({
+                    "type": "interim",
+                    "text": transcript
+                }))
+
                 if result.is_final:
 
                     nouns = mecab.nouns(transcript)
