@@ -131,8 +131,6 @@ async def handle_stt_stream(websocket: WebSocket):
                     }))
 
 
-
-
     except Exception as e:
         print("Google STT Error:", e)
         await websocket.send_text(f"ERROR: {str(e)}")
