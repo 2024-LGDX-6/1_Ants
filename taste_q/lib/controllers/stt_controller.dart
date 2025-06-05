@@ -60,14 +60,14 @@ class STTController {
         } catch (e) {
           // JSON 파싱 오류 또는 unexpected format
           if (!completer.isCompleted) {
-            completer.completeError('서버 응답 처리 오류: \$e');
+            completer.completeError('서버 응답 처리 오류: \n$e');
           }
           _stopInternal();
         }
       },
       onError: (error) {
         if (!completer.isCompleted) {
-          completer.completeError('WebSocket 에러: \$error');
+          completer.completeError('WebSocket 에러: \n$error');
         }
         _stopInternal();
       },
@@ -102,7 +102,7 @@ class STTController {
           (Object e) {
         if (!_isStreaming) return;
         if (!completer.isCompleted) {
-          completer.completeError('오디오 캡처 에러: \$e');
+          completer.completeError('오디오 캡처 에러: \n$e');
         }
         _stopInternal();
       },
