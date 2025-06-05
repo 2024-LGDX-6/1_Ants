@@ -7,9 +7,11 @@ import 'package:taste_q/views/front_appbar.dart';
 import 'package:taste_q/views/main_view.dart';
 import 'package:taste_q/views/setting_view.dart';
 import 'package:taste_q/views/stt_voice_input_popup.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class TasteqMainScreen extends StatefulWidget {
   const TasteqMainScreen({super.key});
+
   @override
   State<TasteqMainScreen> createState() => _TasteqMainScreenState();
 }
@@ -18,6 +20,7 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
   final PageController _pageController = PageController();
   final STTController _sttController = STTController();
   String _displayText = "여기에 음성인식 결과가 표시됩니다.";
+
   int _currentIndex = 0;
   final List<Widget> _pages = [
     MainView(controller: MainController()),
@@ -33,15 +36,33 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
     );
   }
 
+  /// 마이크 권한 요청
+  Future<bool> _requestMicrophonePermission() async {
+    final status = await Permission.microphone.status;
+    if (status.isGranted) return true;
+    final result = await Permission.microphone.request();
+    return result.isGranted;
+  }
+
+  /// FAB 클릭 시: 권한 요청 → 팝업 띄우기 → 결과 받아 레시피 목록으로 이동
   void _onFabPressed() async {
-    // 1) 팝업 띄우기 → 내부에서 sendVoiceText()가 이미 실행됨
+    // ① 마이크 권한 요청
+    bool granted = await _requestMicrophonePermission();
+    if (!granted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('마이크 권한이 필요합니다. 설정에서 허용해주세요.')),
+      );
+      return;
+    }
+
+    // ② 팝업 띄워서 오디오 스트리밍 → 종료 → 최종 텍스트 반환
     final cleanedText = await showDialog<String?>(
       context: context,
       barrierDismissible: false,
       builder: (_) => STTVoiceInputPopup(controller: _sttController),
     );
 
-    // 2) 팝업이 닫힌 뒤: cleanedText가 null이 아니면 화면 이동
+    // ③ 팝업이 닫힌 뒤: cleanedText가 null이 아니면 화면 이동
     if (cleanedText != null && cleanedText.isNotEmpty) {
       setState(() {
         _displayText = cleanedText;
@@ -55,12 +76,12 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
         ),
       );
     }
-    // null이거나 빈 문자열이면 아무 동작 없음
+    // null 또는 빈 문자열이면 아무 동작 안 함
   }
 
   @override
   void dispose() {
-    _pageController.dispose(); // 메모리 낭비 방지
+    _pageController.dispose();
     if (_sttController.isStreaming) {
       _sttController.stopStreaming();
     }
