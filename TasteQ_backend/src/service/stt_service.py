@@ -76,10 +76,6 @@ def get_recommendations_by_nouns(nouns: list[str]) -> dict:
     }
 
 
-
-
-
-
 async def handle_stt_stream(websocket: WebSocket):
     await websocket.accept()
     client = speech.SpeechClient()
@@ -94,13 +90,23 @@ async def handle_stt_stream(websocket: WebSocket):
         interim_results=True
     )
 
+    try:
+        first_chunk = await asyncio.wait_for(websocket.receive_bytes(), timeout=10.0)
+        print(f"📥 첫 오디오 수신: {len(first_chunk)} bytes")
+    except asyncio.TimeoutError:
+        print("❌ 첫 오디오 미수신 → 종료")
+        await websocket.send_text("ERROR: 마이크 오디오가 감지되지 않았습니다.")
+        return
+
     async def request_gen():
+        yield speech.StreamingRecognizeRequest(audio_content=first_chunk)
         while True:
             try:
                 data = await asyncio.wait_for(websocket.receive_bytes(), timeout=15.0)
+                print(f"📥 오디오 수신: {len(data)} bytes")
                 yield speech.StreamingRecognizeRequest(audio_content=data)
             except asyncio.TimeoutError:
-                print("🛑 무음 상태로 15초 경과 → 스트림 종료")
+                print("🛑 무음 상태로 15초 경과 → 종료")
                 break
             except Exception as e:
                 print("❌ WebSocket receive error:", e)
@@ -112,25 +118,20 @@ async def handle_stt_stream(websocket: WebSocket):
             for result in response.results:
                 transcript = result.alternatives[0].transcript
 
-                # 🧠 STEP 3: interim 결과 전송
                 await websocket.send_text(json.dumps({
                     "type": "interim",
                     "text": transcript
                 }))
 
                 if result.is_final:
-
                     nouns = mecab.nouns(transcript)
                     recommendations = get_recommendations_by_nouns(nouns)
-
                     await websocket.send_text(json.dumps({
                         "type": "final",
                         "text": transcript,
                         "nouns": nouns,
                         "recommendations": recommendations
                     }))
-
-
     except Exception as e:
         print("Google STT Error:", e)
         await websocket.send_text(f"ERROR: {str(e)}")
