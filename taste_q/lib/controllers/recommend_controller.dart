@@ -1,26 +1,35 @@
-
 class RecommendController {
-  // 하루권장량 예시: 권장 사용량 임의로 지정
-  final Set<String> _recommendedItems = {'고춧가루', '설탕', '소금', '다시다'};
+  // 하루 권장량(그램 단위 예시)
+  final Map<String, double> _recommendedAmounts = {
+    '고춧가루': 5.0,
+    '설탕': 30.0,
+    '소금': 6.0,
+    '다시다': 2.0,
+  };
 
+  // 추천 이름 리스트
   List<String> getRecommendedNames(List<String> seasonings) {
-    return seasonings.where((e) => _recommendedItems.contains(e)).toList();
+    return seasonings.where((e) => _recommendedAmounts.containsKey(e)).toList();
   }
 
-  List<String> getRecommendedPercents(List<String> seasonings) {
-    return seasonings.where((e) => _recommendedItems.contains(e)).map((e) {
-      switch (e) {
-        case '고춧가루':
-          return '50%';
-        case '설탕':
-          return '50%';
-        case '소금':
-          return '25%';
-        case '다시다':
-          return '40%';
-        default:
-          return '10%';
+  // multiplier를 인자로 받도록 변경
+  List<String> getRecommendedPercents({
+    required List<String> seasonings,
+    required List<double> amounts,
+    required int multiplier,
+  }) {
+    List<String> percents = [];
+
+    for (int i = 0; i < seasonings.length; i++) {
+      final item = seasonings[i];
+      if (_recommendedAmounts.containsKey(item)) {
+        final recAmount = _recommendedAmounts[item]!;
+        final usedPerServing = amounts[i] / multiplier;
+        final percentValue = (usedPerServing / recAmount) * 100;
+        percents.add("${percentValue.toStringAsFixed(0)}%");
       }
-    }).toList();
+    }
+
+    return percents;
   }
 }
