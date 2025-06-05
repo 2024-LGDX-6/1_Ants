@@ -44,15 +44,17 @@ class SettingView extends StatelessWidget { // Provider를 적용한 모드 설�
                 ),
                 SizedBox(height: 8.h),
                 Container(
-                  height: 150.h,
                   decoration: BoxDecoration(
-                    color: Colors.grey[400],
                     borderRadius: BorderRadius.circular(16.r),
                   ),
                   child: Center(
-                    child: Text(
-                      "[ 그래프 영역 ]",
-                      style: TextStyle(color: Colors.white),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(8.r)),
+                      child: Image.asset(
+                        "images/graph.jpg",
+                        height: 220.h,
+                      ),
                     ),
                   ),
                 ),

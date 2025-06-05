@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:taste_q/controllers/recommend_controller.dart';
+import 'package:taste_q/providers/recipe_provider.dart';
 
 class CondimentTypeUsages extends StatelessWidget {
   final int recipeId;
@@ -16,9 +18,17 @@ class CondimentTypeUsages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // multiplier가 바뀌면 이 위젯 전체가 rebuild 되어서
+    // amounts와 multiplier가 동시에 최신 상태가 되는 로직
+    final multiplier = context.watch<RecipeProvider>().multiplier;
+
     final recommendController = RecommendController();
     final recommendedNames = recommendController.getRecommendedNames(seasoningNames);
-    final recommendedPercents = recommendController.getRecommendedPercents(seasoningNames);
+    final recommendedPercents = recommendController.getRecommendedPercents(
+        seasonings: seasoningNames,
+        amounts: amounts,
+        multiplier: multiplier
+    );
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -26,12 +36,12 @@ class CondimentTypeUsages extends StatelessWidget {
         _buildCard(
           title: "예상 조미료 사용량",
           names: seasoningNames,
-          values: amounts.map((e) => "${double.parse(e.toStringAsFixed(1))}g").toList(),
+          percents: amounts.map((e) => "${double.parse(e.toStringAsFixed(1))}g").toList(),
         ),
         _buildCard(
           title: "하루 권장 사용량",
           names: recommendedNames,
-          values: recommendedPercents,
+          percents: recommendedPercents,
         ),
       ],
     );
@@ -40,7 +50,7 @@ class CondimentTypeUsages extends StatelessWidget {
   Widget _buildCard({
     required String title,
     required List<String> names,
-    required List<String> values,
+    required List<String> percents,
   }) {
     return Card(
       elevation: 0,
@@ -62,7 +72,7 @@ class CondimentTypeUsages extends StatelessWidget {
               SizedBox(height: 8.h),
               for (int i = 0; i < names.length; i++)
                 Text(
-                  "${names[i]} : ${values[i]}",
+                  "${names[i]} : ${percents[i]}",
                   style: TextStyle(fontSize: 12.sp),
                 ),
             ],

@@ -18,64 +18,67 @@ class STTVoiceInputPopup extends StatefulWidget {
 class _STTVoiceInputPopupState extends State<STTVoiceInputPopup> {
   bool _isListening = false;
   String _recognizedText = "";
+  String _errorText = "";
 
   @override
   void initState() {
     super.initState();
+    _startStreamingAndListen();
+  }
 
-    // 팝업이 뜨자마자 음성인식 초기화 후 바로 듣기 시작
-    widget.controller.initSpeech().then((_) {
-      setState(() => _isListening = true);
+  /// 1) 팝업이 떠오르면 즉시 오디오 스트리밍을 시작하고, 서버의 최종 메시지를 기다림
+  void _startStreamingAndListen() {
+    setState(() {
+      _isListening = true;
+      _recognizedText = "";
+      _errorText = "";
+    });
 
-      // startListening()이 완료되면 recognizedText에 저장
-      widget.controller.startListening().then((value) {
-        if (mounted) {
-          setState(() {
-            _recognizedText = value;
-            _isListening = false;
-          });
-        }
-      }).catchError((error) {
-        // 에러 시 팝업을 닫고 알림 표시
-        if (mounted) {
+    widget.controller.sendVoiceText().then((finalText) {
+      if (mounted) {
+        setState(() {
+          _recognizedText = finalText;
+          _isListening = false;
+        });
+      }
+    }).catchError((error) {
+      if (mounted) {
+        setState(() {
+          _errorText = error.toString();
+          _isListening = false;
+        });
+        // 오류가 발생하면 자동으로 팝업 닫고 null 반환
+        Future.microtask(() {
           Navigator.of(context).pop<String?>(null);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('음성인식 오류: $error')),
+            SnackBar(content: Text('서버 처리 오류: $_errorText')),
           );
-        }
-      });
-    }).catchError((error) {
-      // 초기화 실패 시 팝업 닫고 오류 표시
-      if (mounted) {
-        Navigator.of(context).pop<String?>(null);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('음성인식 초기화 실패: $error')),
-        );
+        });
       }
     });
   }
 
-  /// “취소” 버튼: 음성인식 중지 후 null 반환
+  /// “취소” 버튼: 즉시 스트리밍 중지 후 null 반환
   void _onCancelPressed() {
-    widget.controller.stopListening();
+    widget.controller.stopStreaming();
     Navigator.of(context).pop<String?>(null);
   }
 
-  /// “완료” 버튼: 음성인식 중지 후 현재까지 인식된 텍스트 반환
-  void _onDonePressed() async {
-    widget.controller.stopListening();
-    String resultText = _recognizedText;
-
-    // 서버에 보내 정제된 텍스트 받아오기
-    try {
-      String cleaned = await widget.controller.sendVoiceText(resultText);
-      Navigator.of(context).pop<String?>(cleaned);
-    } catch (e) {
+  /// “완료” 버튼: 서버에서 최종 결과가 이미 왔다면 해당 텍스트 반환
+  void _onDonePressed() {
+    widget.controller.stopStreaming();
+    if (_recognizedText.isNotEmpty) {
+      Navigator.of(context).pop<String?>(_recognizedText);
+    } else {
+      // 아직 서버 최종 응답을 못 받았거나 오류가 있을 때
       Navigator.of(context).pop<String?>(null);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('서버 전송 오류: $e')),
-      );
     }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.stopStreaming();
+    super.dispose();
   }
 
   @override
@@ -86,30 +89,36 @@ class _STTVoiceInputPopupState extends State<STTVoiceInputPopup> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 8.h,),
-          Text(
-            _isListening
-                ? "음성인식 중입니다..."
-                : (_recognizedText.isEmpty
-                ? "아직 인식된 음성이 없습니다"
-                : "인식 결과:\n'$_recognizedText'"),
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15.sp,),
-          ),
-          if (!_isListening && _recognizedText.isEmpty)
+          SizedBox(height: 8.h),
+          if (_isListening) ...[
+            const CircularProgressIndicator(),
+            SizedBox(height: 12.h),
             Text(
-              "음성인식 결과가 없습니다.\n취소 버튼을 눌러 중단하세요.",
+              "음성 인식(오디오 스트리밍) 중입니다...",
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 15.sp,),
+              style: TextStyle(fontSize: 15.sp),
             ),
+          ] else if (_recognizedText.isNotEmpty) ...[
+            Text(
+              "인식 결과:\n'$_recognizedText'",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 15.sp),
+            ),
+          ] else ...[
+            Text(
+              _errorText.isNotEmpty
+                  ? "오류 발생:\n$_errorText"
+                  : "음성 인식 결과가 없습니다.\n취소 버튼을 눌러 중단하세요.",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 15.sp),
+            ),
+          ],
         ],
       ),
       actions: [
         TextButton(
           onPressed: _onCancelPressed,
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.blueAccent,
-          ),
+          style: TextButton.styleFrom(foregroundColor: Colors.blueAccent),
           child: Text(
             "취소",
             style: TextStyle(color: Colors.blueAccent),
@@ -117,9 +126,7 @@ class _STTVoiceInputPopupState extends State<STTVoiceInputPopup> {
         ),
         TextButton(
           onPressed: _onDonePressed,
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.blueAccent,
-          ),
+          style: TextButton.styleFrom(foregroundColor: Colors.blueAccent),
           child: const Text(
             "완료",
             style: TextStyle(color: Colors.blueAccent),
