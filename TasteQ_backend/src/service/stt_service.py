@@ -1,4 +1,6 @@
 from fastapi import WebSocket
+import threading
+from queue import Queue
 from google.cloud import speech_v1p1beta1 as speech
 import asyncio
 from eunjeon import Mecab
@@ -76,6 +78,27 @@ def get_recommendations_by_nouns(nouns: list[str]) -> dict:
     }
 
 
+def request_generator(audio_queue: Queue):
+    while True:
+        chunk = audio_queue.get()
+        if chunk is None:
+            break
+        yield speech.StreamingRecognizeRequest(audio_content=chunk)
+
+async def websocket_receiver(websocket: WebSocket, audio_queue: Queue):
+    try:
+        while True:
+            data = await websocket.receive_bytes()
+            audio_queue.put(data)
+    except Exception as e:
+        print("❌ WebSocket receive error:", e)
+    finally:
+        audio_queue.put(None)  # 종료 신호
+
+
+
+
+
 async def handle_stt_stream(websocket: WebSocket):
     await websocket.accept()
     client = speech.SpeechClient()
@@ -89,31 +112,16 @@ async def handle_stt_stream(websocket: WebSocket):
         config=config,
         interim_results=True
     )
+    audio_queue = Queue()
+     # 🔁 WebSocket 수신을 별도 Task로 수행
+    asyncio.create_task(websocket_receiver(websocket, audio_queue))
+
 
     try:
-        first_chunk = await asyncio.wait_for(websocket.receive_bytes(), timeout=10.0)
-        print(f"📥 첫 오디오 수신: {len(first_chunk)} bytes")
-    except asyncio.TimeoutError:
-        print("❌ 첫 오디오 미수신 → 종료")
-        await websocket.send_text("ERROR: 마이크 오디오가 감지되지 않았습니다.")
-        return
-
-    async def request_gen():
-        yield speech.StreamingRecognizeRequest(audio_content=first_chunk)
-        while True:
-            try:
-                data = await asyncio.wait_for(websocket.receive_bytes(), timeout=15.0)
-                print(f"📥 오디오 수신: {len(data)} bytes")
-                yield speech.StreamingRecognizeRequest(audio_content=data)
-            except asyncio.TimeoutError:
-                print("🛑 무음 상태로 15초 경과 → 종료")
-                break
-            except Exception as e:
-                print("❌ WebSocket receive error:", e)
-                break
-
-    try:
-        responses = client.streaming_recognize(config=streaming_config, requests=request_gen())
+        responses = client.streaming_recognize(
+            config=streaming_config,
+            requests=request_generator(audio_queue)
+        )
         for response in responses:
             for result in response.results:
                 transcript = result.alternatives[0].transcript
@@ -134,4 +142,4 @@ async def handle_stt_stream(websocket: WebSocket):
                     }))
     except Exception as e:
         print("Google STT Error:", e)
-        await websocket.send_text(f"ERROR: {str(e)}")
+        await websocket.send_text(json.dumps({"type": "error", "message": str(e)}))
