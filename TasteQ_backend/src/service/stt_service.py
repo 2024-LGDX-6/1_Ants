@@ -89,6 +89,7 @@ async def websocket_receiver(websocket: WebSocket, audio_queue: Queue):
     try:
         while True:
             data = await websocket.receive()
+            print(f"📥 수신된 오디오 바이트: {len(data)} bytes")  # ← 여기에 로그 찍힘
             # 문자열로 종료 신호가 왔는지 확인
             if isinstance(data, str) and data == "##END##":
                 print("🛑 완료 신호 수신 → 종료 처리")
@@ -146,3 +147,4 @@ async def handle_stt_stream(websocket: WebSocket):
     except Exception as e:
         print("Google STT Error:", e)
         await websocket.send_text(json.dumps({"type": "error", "message": str(e)}))
+        await websocket.close() 
