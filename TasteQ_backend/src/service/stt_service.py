@@ -88,15 +88,18 @@ def request_generator(audio_queue: Queue):
 async def websocket_receiver(websocket: WebSocket, audio_queue: Queue):
     try:
         while True:
-            data = await websocket.receive_bytes()
-            audio_queue.put(data)
+            data = await websocket.receive()
+            # 문자열로 종료 신호가 왔는지 확인
+            if isinstance(data, str) and data == "##END##":
+                print("🛑 완료 신호 수신 → 종료 처리")
+                break
+            # 바이너리 오디오라면 queue에 삽입
+            elif isinstance(data, bytes):
+                audio_queue.put(data)
     except Exception as e:
         print("❌ WebSocket receive error:", e)
     finally:
-        audio_queue.put(None)  # 종료 신호
-
-
-
+        audio_queue.put(None)
 
 
 async def handle_stt_stream(websocket: WebSocket):
