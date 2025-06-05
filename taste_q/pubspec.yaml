@@ -37,6 +37,7 @@ dependencies:
   flutter_blue_plus: ^1.35.5
   android_intent_plus: ^5.3.0
   permission_handler: ^11.0.0
+  web_socket_channel: ^3.0.3
   speech_to_text: ^7.0.0
 
   # The following adds the Cupertino Icons font to your application.

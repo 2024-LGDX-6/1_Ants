@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-
+import 'package:web_socket_channel/web_socket_channel.dart';
 import '../models/base_url.dart';
 
 class STTController {
@@ -66,16 +65,48 @@ class STTController {
 
   /// 음성인식 결과를 서버로 전송하고, 서버가 반환한 정제된 텍스트를 리턴
   Future<String> sendVoiceText(String voiceText) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/speech-to-text'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'voice_text': voiceText}),
+    final channel = WebSocketChannel.connect(
+      Uri.parse("$baseUrl/ws/stt"),  // FastAPI WebSocket URL
     );
-    if (response.statusCode != 200) {
-      throw Exception('서버 전송 실패: ${response.statusCode}');
-    }
-    final jsonResponse = jsonDecode(response.body);
-    return jsonResponse['cleaned_text'] ?? '';
+
+    final completer = Completer<String>();
+
+    channel.stream.listen(
+          (message) {
+        try {
+          final Map<String, dynamic> data = jsonDecode(message);
+
+          if (data['type'] == 'final') {
+            final refinedText = data['text'] ?? '';
+            if (!completer.isCompleted) {
+              completer.complete(refinedText); // 최종 응답 반환
+              channel.sink.close();
+            }
+          }
+        } catch (e) {
+          if (!completer.isCompleted) {
+            completer.completeError("응답 처리 중 오류 발생: $e");
+            channel.sink.close();
+          }
+        }
+      },
+      onError: (error) {
+        if (!completer.isCompleted) {
+          completer.completeError("WebSocket 오류: $error");
+          channel.sink.close();
+        }
+      },
+      onDone: () {
+        if (!completer.isCompleted) {
+          completer.completeError("WebSocket 연결이 종료되었습니다.");
+        }
+      },
+    );
+
+    // 텍스트 전송
+    channel.sink.add(jsonEncode({"text": voiceText}));
+
+    return completer.future;
   }
 
 }
