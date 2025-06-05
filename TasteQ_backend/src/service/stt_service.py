@@ -7,6 +7,17 @@ from service.recipe_service import get_recipes_by_main_ingredients,get_recipes_b
 from service.custom_recipe_service import get_custom_recipes_by_main_ingredients,get_custom_recipes_by_name
 from database.connection import get_connection
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+print("✅ ENV PATH:", cred_path)
+print("✅ ABS PATH:", os.path.abspath(cred_path))
+print("✅ FILE EXISTS?", os.path.exists(cred_path))
+
+
+
 mecab = Mecab()
 
 def get_all_recipe_names() -> set[str]:
