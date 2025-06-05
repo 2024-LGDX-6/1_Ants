@@ -42,24 +42,19 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
     );
   }
 
-  /// FAB 클릭 시 호출
+  /// FAB 클릭 시: 팝업 띄워서 오디오 스트리밍 → 서버에서 받은 텍스트로 화면 전환
   void _onFabPressed() async {
-    // 1) 팝업 띄우기 및 결과 받기
     final cleanedText = await showDialog<String?>(
       context: context,
       barrierDismissible: false,
       builder: (_) => STTVoiceInputPopup(controller: _sttController),
     );
 
-    // 2) 팝업이 닫힌 뒤: result가 null이 아닐 때만 상태 업데이트
-    // 2) 팝업이 닫힌 뒤: cleanedText가 null이 아니면
     if (cleanedText != null && cleanedText.isNotEmpty) {
-      // 화면에 잠시 표시(선택 사항)
       setState(() {
         _displayText = cleanedText;
-        print(_displayText);
+        print("인식된 텍스트: $_displayText");
       });
-      // 3) 레시피 목록 화면으로 이동하면서 검색쿼리 전달
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => RecipeListScreen(
@@ -68,17 +63,16 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
           ),
         ),
       );
-    } else {
-      // null이거나 빈 문자열이라면 아무 동작 안 함
     }
+    // null이거나 빈 문자열이면 아무 동작 없음
   }
 
 
   @override
   void dispose() {
     _pageController.dispose(); // 메모리 누수 방지
-    if (_sttController.isListening) { // 화면을 벗어날 때 음성인식이 살아 있으면 중지
-      _sttController.stopListening();
+    if (_sttController.isStreaming) {
+      _sttController.stopStreaming();
     }
     super.dispose();
   }
