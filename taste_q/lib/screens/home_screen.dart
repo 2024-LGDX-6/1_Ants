@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:taste_q/screens/ble_scan_page_screen.dart';
 import 'package:taste_q/screens/tasteq_main_screen.dart';
 import 'package:taste_q/screens/fridge_main_screen.dart'; // 추가
 import 'package:taste_q/views/front_appbar.dart'; // 기존 홈바 import 추가
+import 'package:url_launcher/url_launcher.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'dart:io' show Platform;
 import 'dart:async';
@@ -361,7 +364,7 @@ class DeviceScreen extends StatelessWidget {
   }
 }
 
-// 클릭 시 페이지 이동
+// 클릭 시 페이지 이동 및 제품 상세 페이지 오픈
 class DeviceTile extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -371,7 +374,8 @@ class DeviceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
+        // 냉장고, 테이스트Q는 기존 로직 유지
         if (label == '냉장고') {
           Navigator.push(
             context,
@@ -379,13 +383,63 @@ class DeviceTile extends StatelessWidget {
               builder: (context) => const FridgeMainScreen(),
             ),
           );
-        } else {
+        } else if (label == '테이스트Q') {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => TasteqMainScreen(),
             ),
           );
+        }
+        // 전기레인지, TV, 광파오븐, 에어컨은 상세페이지 URL로 Android에서 외부 브라우저로 명시적으로 열기
+        else if (label == '전기레인지') {
+          if (Platform.isAndroid) {
+            final intent = AndroidIntent(
+              action: 'action_view',
+              data: 'https://www.lge.co.kr/electric-ranges/bey3srbl',
+            );
+            try {
+              await intent.launch();
+            } catch (e) {
+              print('링크 열기 실패: $e');
+            }
+          }
+        } else if (label == 'TV') {
+          if (Platform.isAndroid) {
+            final intent = AndroidIntent(
+              action: 'action_view',
+              data: 'https://www.lge.co.kr/tvs/86ut8300ena-wall',
+            );
+            try {
+              await intent.launch();
+            } catch (e) {
+              print('링크 열기 실패: $e');
+            }
+          }
+        } else if (label == '광파오븐') {
+          if (Platform.isAndroid) {
+            final intent = AndroidIntent(
+              action: 'action_view',
+              data: 'https://www.lge.co.kr/microwaves-and-ovens/mlj32ers',
+            );
+            try {
+              await intent.launch();
+            } catch (e) {
+              print('링크 열기 실패: $e');
+            }
+          }
+        } else if (label == '에어컨') {
+          if (Platform.isAndroid) {
+            final intent = AndroidIntent(
+              action: 'action_view',
+              data: 'https://www.lge.co.kr/air-conditioners/fq25fn9be2',
+            );
+            try {
+              await intent.launch();
+            } catch (e) {
+              print('링크 열기 실패: $e');
+            }
+          }
         }
       },
       style: ElevatedButton.styleFrom(
@@ -453,41 +507,95 @@ class ReportScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 최근 15일 날짜와 랜덤 전력 사용량 데이터 생성 (가장 최근 날짜가 맨 위)
+    final now = DateTime.now();
+    final random = Random();
+    final usageData = List.generate(15, (index) {
+      final date = now.subtract(Duration(days: index));
+      final usage = (5 + random.nextDouble() * 5).toStringAsFixed(1); // 5.0~10.0
+      return {
+        'date': '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}',
+        'usage': usage
+      };
+    });
+    // 최근 7일 데이터만 차트에 사용 (최신순)
+    final chartData = usageData.take(7).toList();
+
     return SafeArea(
-      child: SingleChildScrollView(
+      child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('전력량 모니터링', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
-
             Container(
               width: double.infinity,
-              height: 180,
+              height: 220,
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blueGrey[50],
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
+                boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.3), blurRadius: 4)],
               ),
-              child: const Center(
-                child: Text('여기에 소비 전력 차트가 표시됩니다', style: TextStyle(color: Colors.grey)),
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  maxY: 12,
+                  barTouchData: BarTouchData(enabled: false),
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.toInt();
+                          if (index < 0 || index >= chartData.length) return const SizedBox();
+                          final dateStr = chartData[index]['date']!.substring(5); // MM-DD
+                          return Text(dateStr, style: const TextStyle(fontSize: 10));
+                        },
+                        reservedSize: 30,
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 2,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            value.toInt().toString(),
+                            style: const TextStyle(fontSize: 10, overflow: TextOverflow.visible),
+                          );
+                        },
+                      ),
+                    ),
+                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  barGroups: List.generate(chartData.length, (index) {
+                    final usage = double.parse(chartData[index]['usage']!);
+                    return BarChartGroupData(
+                      x: index,
+                      barRods: [
+                        BarChartRodData(toY: usage, width: 14, color: Colors.blueAccent),
+                      ],
+                    );
+                  }),
+                ),
               ),
             ),
-
             const SizedBox(height: 24),
-
             const Text('일간 소비량', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             const SizedBox(height: 12),
-
-            ListView(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: const [
-                ReportTile(date: '2025-05-21', usage: '6.2 kWh'),
-                ReportTile(date: '2025-05-20', usage: '7.0 kWh'),
-                ReportTile(date: '2025-05-19', usage: '6.8 kWh'),
-              ],
-            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: usageData.length,
+                itemBuilder: (context, index) {
+                  final item = usageData[index];
+                  return ReportTile(date: item['date']!, usage: '${item['usage']} kWh');
+                },
+              ),
+            )
           ],
         ),
       ),
