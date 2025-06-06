@@ -75,3 +75,6 @@ class CustomRecipeImageCreateRequest(BaseModel):
     custom_recipe_id: int
     custom_image_name: str
     custom_image_path: str  # 또는 파일 업로드라면 생략 가능 (라우터에서 처리)
+
+class TextRequest(BaseModel):
+    text: str
