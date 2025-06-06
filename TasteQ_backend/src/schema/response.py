@@ -3,7 +3,7 @@
 from pydantic import BaseModel, field_serializer
 from typing import Optional
 from datetime import datetime
-
+from typing import List
 
 # 사용자 조회 응답용
 class UserResponse(BaseModel):
@@ -161,3 +161,6 @@ class CustomRecipeImageResponse(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+
+class NounsResponse(BaseModel):
+    nouns: List[str]
