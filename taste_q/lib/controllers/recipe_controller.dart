@@ -6,10 +6,11 @@ import 'package:taste_q/controllers/dto/recipe_data_dto.dart';
 import 'package:taste_q/models/recipe_mode.dart';
 import 'package:taste_q/providers/recipe_provider.dart';
 
+import '../models/base_url.dart';
 import 'dto/image_data_dto.dart';
 
 class RecipeController {
-  static const String baseUrl = "http://192.168.219.183:8000";
+  String baseUrl = BaseUrl.baseUrl;
 
   /// 특정 레시피ID로 레시피, 시즈닝, 전체 이미지 리스트를 받아
   /// 해당 recipeId에 맞는 이미지 하나를 찾아 RecipeDataDTO 반환
