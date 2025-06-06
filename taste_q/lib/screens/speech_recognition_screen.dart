@@ -2,8 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:taste_q/controllers/stt_controller.dart';
-import 'package:taste_q/screens/recipe_list_screen.dart';
-import 'package:taste_q/models/route_entry_type.dart';
+
 
 class SpeechRecognitionScreen extends StatefulWidget {
   const SpeechRecognitionScreen({Key? key}) : super(key: key);
@@ -87,14 +86,7 @@ class _SpeechRecognitionScreenState extends State<SpeechRecognitionScreen> {
       });
 
       // 레시피 목록 화면으로 이동 (뒤로가면 메인으로)
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => RecipeListScreen(
-            searchQuery: _cleanedText,
-            routeEntryType: RouteEntryType.anotherDefault,
-          ),
-        ),
-      );
+      Navigator.of(context).pop(_cleanedText);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -236,7 +228,7 @@ class _SpeechRecognitionScreenState extends State<SpeechRecognitionScreen> {
                           : _onDonePressed,
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size(240.w, 40.h),
-                        backgroundColor: Colors.blueAccent,
+                        backgroundColor: Colors.orangeAccent,
                         foregroundColor: Colors.white,
                       ),
                       child: Text(

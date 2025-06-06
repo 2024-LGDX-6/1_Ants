@@ -120,23 +120,42 @@ class STTController {
     _isListening = false;
   }
 
-  String baseUrl = BaseUrl.baseUrl;
+  String baseUrl = BaseUrl.baseUrl; // 백엔드 주소
 
   /// 백엔드에 rawText 전송 → "{ "cleaned": "정제된 텍스트" }" 반환
   Future<String> sendTextToServer(String rawText) async {
     final uri = Uri.parse("$baseUrl/text/nouns");
-    final response = await http.post(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'text': rawText}),
-    );
 
-    if (response.statusCode != 200) {
-      throw Exception('서버 오류: ${response.statusCode}');
+    try {
+      final response = await http.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'text': rawText}),
+      ).timeout(
+        const Duration(minutes: 3),
+        onTimeout: () {
+          throw Exception('서버 응답시간 3분 초과');
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('서버 오류: ${response.statusCode}\n응답 내용: ${response.body}');
+      }
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
+      String cleaned;
+      if (data['nouns'] is String) {
+        cleaned = data['nouns'] as String;
+      } else if (data['nouns'] is List) {
+        // 예: 반환값 ["고기", "찌개"] → "고기 찌개"로 결합
+        cleaned = (data['nouns'] as List<dynamic>).join(" ");
+      } else {
+        throw Exception("알 수 없는 서버 응답 형식: \n${data['nouns']}");
+      }
+      return cleaned.isNotEmpty ? cleaned : rawText;
+    } catch (e) {
+      print('❌ sendTextToServer 오류 발생: \n$e');
+      rethrow;
     }
-
-    final Map<String, dynamic> data = jsonDecode(response.body);
-    final String cleaned = data['cleaned'] as String? ?? "";
-    return cleaned.isNotEmpty ? cleaned : rawText;
   }
 }

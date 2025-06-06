@@ -40,29 +40,28 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
 
   /// FAB 클릭 시 음성인식 호출
   void _onFabPressed() async {
-    // ① 마이크 권한 요청 (여기서도 한 번 더 체크해도 무방)
+    // 1) 마이크 권한 요청 (여기서도 한 번 더 체크해도 무방)
     final status = await Permission.microphone.status;
     if (!status.isGranted) {
       final result = await Permission.microphone.request();
       if (!result.isGranted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('마이크 권한이 필요합니다. 설정에서 허용해주세요.')),
+          const SnackBar(
+              content: Text('마이크 권한이 필요합니다. 설정에서 허용해주세요.')),
         );
         return;
       }
     }
 
-    // ② SpeechRecognitionScreen으로 이동
+    // 2) SpeechRecognitionScreen으로 이동
     final cleanedText = await Navigator.of(context).push<String?>(
       MaterialPageRoute(
         builder: (_) => const SpeechRecognitionScreen(),
       ),
     );
 
-    // ③ 결과 처리: null이 아니면 레시피 목록 페이지로 이동
+    // 3) 결과 처리: null이 아니면 레시피 목록 페이지로 이동
     if (cleanedText != null && cleanedText.isNotEmpty) {
-      setState(() {
-      });
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => RecipeListScreen(
@@ -84,9 +83,6 @@ class _TasteqMainScreenState extends State<TasteqMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final recipes = controller.getRecommendedRecipes();
-    // final feedback = controller.getLastRecipeFeedback();
-
     return Scaffold(
       appBar: FrontAppBar(appBarName: "테이스트Q",),
       backgroundColor: Colors.white,
