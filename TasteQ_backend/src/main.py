@@ -4,12 +4,7 @@ from api import stt_ws, recipe_image,custom_recipe_image,text
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-# main.py 상단에 추가
-from dotenv import load_dotenv
-import os
 
-# 👇 이 경로가 맞아요!
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "../.env"))
 
 app = FastAPI()
 
