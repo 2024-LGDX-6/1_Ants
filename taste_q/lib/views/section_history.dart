@@ -20,12 +20,22 @@ class SectionHistory extends StatelessWidget {
             child: Text("요리 기록 로딩 중..."),
           );
         } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(
-            child: Text("기록 정보가 없습니다."),
+          return Container(
+            margin: EdgeInsets.all(8.w),
+            padding: EdgeInsets.all(12.w),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(14.r),
+            ),
+            child: Center(
+              child: Text(
+                "기록 정보가 아직 없습니다.",
+                style: TextStyle(fontSize: 12.sp,),
+              ),
+            ),
           );
         } else {
           final cookLog = snapshot.data!.first;
-
           String dateString = cookLog.startTime;
           DateTime date = DateTime.parse(dateString);
           String formattedDate = "${date.year}년 ${date.month}월 ${date.day}일";
@@ -47,7 +57,7 @@ class SectionHistory extends StatelessWidget {
               padding: EdgeInsets.all(12.w),
               decoration: BoxDecoration(
                 color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(16.r),
+                borderRadius: BorderRadius.circular(14.r),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

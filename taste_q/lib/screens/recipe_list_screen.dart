@@ -107,9 +107,10 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
-                  return Center(child: Text('에러: ${snapshot.error}'));
+                  print('에러: ${snapshot.error}');
+                  return Center(child: Text('저장된 레시피가 아직 없습니다.'));
                 } else if (!snapshot.hasData || snapshot.data.recipeIds.isEmpty) {
-                  return const Center(child: Text('레시피가 없습니다.'));
+                  return const Center(child: Text('저장된 레시피가 아직 없습니다.'));
                 } else {
                   final recipes = snapshot.data!;
                   final filteredIndices = List.generate(recipes.recipeNames.length, (index) => index)
