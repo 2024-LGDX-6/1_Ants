@@ -21,7 +21,6 @@ class SectionHistory extends StatelessWidget {
           );
         } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
           return Container(
-            margin: EdgeInsets.all(8.w),
             padding: EdgeInsets.all(12.w),
             decoration: BoxDecoration(
               color: Colors.grey[200],
@@ -53,8 +52,8 @@ class SectionHistory extends StatelessWidget {
               );
             },
             child: Container(
-              margin: EdgeInsets.all(8.w),
-              padding: EdgeInsets.all(12.w),
+              // width: double.infinity,
+              padding: EdgeInsets.all(16.w),
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(14.r),

@@ -14,61 +14,63 @@ class MainView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int userId = 1; // 로그인된 사용자 ID
-    int deviceId = 3; // 사용할 냉장고 장치 ID
+    const int userId = 1; // 로그인 사용자ID
+    const int deviceId = 3; // 디바이스 냉장고ID
 
     return FutureBuilder<MainDataDTO>(
-      future: controller.getRecommendedRecipes(userId, deviceId), // 원래의 메소드 호출
-
+      future: controller.getRecommendedRecipes(userId, deviceId),
       builder: (context, snapshot) {
+        // 1) 로딩 중엔 스피너
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // 데이터 로딩 중 표시
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          // 오류 발생 시 표시
-          return Center(child: Text('오류: ${snapshot.error}'));
-        } else if (!snapshot.hasData) {
-          // 데이터가 없는 경우 처리
-          return Center(child: Text('추천 레시피를 불러올 수 없습니다.'));
-        } else {
-          // 데이터가 정상적으로 로드된 경우
-          final MainDataDTO dto = snapshot.data!;
-          final List<int> recipeIds = dto.recipeIds;
-          final List<String> recipeNames = dto.recipeNames;
-          final List<String> recipeImages = dto.recipeImageUrls;
-
-          // 하드코딩 데이터 반환
-          final tip = controller.getRandomTip();
-
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(8.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 30.h),
-                Center(
-                  child: Image.asset(
-                    'images/tasteQ.png',
-                    width: 120.w, height: 80.h,
-                  ),
-                ),
-                SizedBox(height: 30.h),
-                SectionRecommended(
-                  recipeIds: recipeIds,
-                  recipeNames: recipeNames,
-                  recipeImages: recipeImages,
-                ),
-                SizedBox(height: 16.h),
-                SectionHistory(),
-                SizedBox(height: 16.h),
-                SectionButtons(),
-                SizedBox(height: 32.h),
-                SectionTipBar(tip: tip),
-                SizedBox(height: 20.h),
-              ],
-            ),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
+        // 2) 오류가 있거나 데이터가 없더라도, 화면은 그대로 구성
+        final bool hasError = snapshot.hasError;
+        final MainDataDTO dto = snapshot.data ??
+            MainDataDTO(
+              recipeIds: [],
+              recipeNames: [],
+              recipeImageUrls: [],
+              recipeIngredients: [],
+            );
+        // 냉장고 재료 기반 추천이 비어 있거나, 오류 발생 시 프롬프트
+        final bool showPrompt = hasError || dto.recipeIds.isEmpty;
+
+        final recipeIds = dto.recipeIds;
+        final recipeNames = dto.recipeNames;
+        final recipeImages = dto.recipeImageUrls;
+        final tip = controller.getRandomTip();
+
+        return SingleChildScrollView(
+          padding: EdgeInsets.all(8.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 30.h),
+              Center(
+                child: Image.asset(
+                  'images/tasteQ.png',
+                  width: 120.w,
+                  height: 80.h,
+                ),
+              ),
+              SizedBox(height: 20.h),
+              SectionRecommended(
+                recipeIds: recipeIds,
+                recipeNames: recipeNames,
+                recipeImages: recipeImages,
+                showPrompt: showPrompt, // 오류 혹은 빈 리스트 시 메시지 표시
+              ),
+              SizedBox(height: 16.h),
+              SectionHistory(),
+              SizedBox(height: 16.h),
+              SectionButtons(),
+              SizedBox(height: 32.h),
+              SectionTipBar(tip: tip),
+              SizedBox(height: 20.h),
+            ],
+          ),
+        );
       },
     );
   }
