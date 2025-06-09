@@ -1,3 +1,3 @@
 class BaseUrl {
-  static const String baseUrl = "http://192.168.219.248:8000";
+  static const String baseUrl = "http://175.45.193.247:8000";
 }
