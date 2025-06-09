@@ -1,8 +1,7 @@
 from eunjeon import Mecab
-import mecab_ko_dic  # pip install python-mecab-ko-dic 필요
 
-# 사전 경로 자동 설정
-mecab = Mecab(mecab_ko_dic.dictionary_path)
+# 직접 설치한 mecab-ko-dic 경로로 명시
+mecab = Mecab("/usr/local/lib/mecab/mecab-ko-dic")
 
 def extract_nouns(text: str) -> list[str]:
     return mecab.nouns(text)
