@@ -69,11 +69,13 @@ class _IngredientScreenState extends State<IngredientScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
+        backgroundColor: Colors.white,
         body: Center(child: CircularProgressIndicator()),
       );
     }
     if (_fridgeData.isEmpty) {
       return Scaffold(
+        backgroundColor: Colors.white,
         appBar: const IngredientAppBar(),
         body: Container(
           decoration: BoxDecoration(color: Colors.white),
