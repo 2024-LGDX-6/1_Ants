@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:taste_q/controllers/dto/main_data_dto.dart';
 import 'package:taste_q/controllers/main_controller.dart';
-import 'package:taste_q/views/safe_images.dart';
 import 'section_recommended.dart';
 import 'section_history.dart';
 import 'section_buttons.dart';
@@ -15,8 +14,11 @@ class MainView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int userId = 1; // 로그인된 사용자 ID
+    int deviceId = 3; // 사용할 냉장고 장치 ID
+
     return FutureBuilder<MainDataDTO>(
-      future: controller.getRecommendedRecipes(), // 원래의 메소드 호출
+      future: controller.getRecommendedRecipes(userId, deviceId), // 원래의 메소드 호출
 
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
