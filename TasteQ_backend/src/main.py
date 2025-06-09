@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from api import user, seasoning, recipe, user_fridge, user_seasoning, cooking_log ,cooking_device , custom_recipe ,device_connection_log, custom_recipe_seasoning_detail, recipe_seasoning_detail,speech
-from api import stt_ws, recipe_image,custom_recipe_image,text
+from api import user, seasoning, recipe, user_fridge, user_seasoning, cooking_log ,cooking_device , custom_recipe ,device_connection_log, custom_recipe_seasoning_detail, recipe_seasoning_detail
+from api import recipe_image,custom_recipe_image,text
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -32,9 +32,7 @@ app.include_router(custom_recipe.router, tags = ["Costom_recipe"])
 app.include_router(device_connection_log.router, tags = ["Device_connection_log"])
 app.include_router(custom_recipe_seasoning_detail.router, tags = ["Custom_recipe_seasoning_detail"])
 app.include_router(recipe_seasoning_detail.router, tags = ["Recipe_seasoning_detail"])
-app.include_router(speech.router,tags = ["speech"])
 app.include_router(user_fridge.router, tags=["User Fridge"])
-app.include_router(stt_ws.router, tags=["WebSocket STT"])
 app.include_router(recipe_image.router)
 app.include_router(custom_recipe_image.router)
 app.include_router(text.router, tags=["text"])
