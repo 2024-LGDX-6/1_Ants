@@ -1,10 +1,11 @@
 # src/database/connection.py
-
 import pymysql
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+print("[DEBUG] MYSQL_HOST:", os.getenv("MYSQL_HOST"))  # 이 줄 추가
 
 def get_connection():
     return pymysql.connect(
